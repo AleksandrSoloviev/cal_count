@@ -1,0 +1,53 @@
+export type NutrientKey = "calories" | "protein" | "fat" | "carbs";
+
+export interface Goals {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+}
+
+export interface Nutrient {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+}
+
+export type Method = "grams" | "milliliters" | "pieces" | "custom";
+
+export interface FoodComponent {
+  id: string;
+  name: string;
+  decimals: boolean;
+  nutrition: Nutrient;
+}
+
+export interface Food {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  method: Method;
+  perUnit?: Nutrient;
+  components?: FoodComponent[];
+  lastUsed?: number;
+}
+
+export interface Entry {
+  id: string;
+  date: string;
+  ts: number;
+  foodId: string;
+  foodName: string;
+  method: Method;
+  qty?: number;
+  compQty?: Record<string, number>;
+  nutrition: Nutrient;
+}
+
+export type Tab = "home" | "fridge" | "history" | "stats";
+
+export type Modal =
+  | { type: "log-food"; food: Food }
+  | { type: "add-food"; prefill?: Food }
+  | { type: "day-detail"; date: string };
