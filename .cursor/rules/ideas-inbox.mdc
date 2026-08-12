@@ -1,0 +1,41 @@
+---
+description: Ideas inbox — capture and list only; implement only when explicitly asked
+alwaysApply: true
+---
+
+# Ideas inbox workflow
+
+Canonical file: `IDEAS.md` at the repo root.
+
+## Capture
+
+When the user states a product/tech idea (e.g. «идея: …», «запиши идею …», «хочу потом …» without asking to build it now):
+
+1. Append a new row to the Ideas table in `IDEAS.md`.
+2. Assign the next `IDEA-NNN` id.
+3. Set status `inbox`, today’s date, short idea text, optional notes.
+4. Confirm with the id. **Do not start implementation.**
+
+## List
+
+When the user asks what was recorded («какие идеи», «что в бэклоге», «покажи inbox»):
+
+1. Read `IDEAS.md`.
+2. Summarize open items (`inbox`, `ready`, `doing`) by id and title.
+3. Mention `done` / `dropped` only if asked for full history.
+
+## Implement
+
+Only implement when the user **explicitly** names an idea to build (id and/or title) or says to implement now.
+
+1. Set that idea’s status to `doing` in `IDEAS.md`.
+2. Implement.
+3. On finish, set status `done` and note where it landed (PR, files, work item).
+
+If the request is ambiguous (idea vs implement), ask one short clarifying question. Default to **capture only**.
+
+## Do not
+
+- Do not treat roadmap/ADR items as auto-implementation tickets.
+- Do not invent ideas into the table without user input.
+- Do not clear `inbox` items without the user asking.

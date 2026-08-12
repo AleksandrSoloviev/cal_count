@@ -47,6 +47,10 @@ Site URL: `https://<user>.github.io/cal_count/`
 
 Details: `.specify/memory/context.md` and `.specify/memory/architecture/adr/2026-08-12-web-mvp-then-react-native.md`.
 
+## Ideas inbox
+
+Product/tech ideas go in [`IDEAS.md`](./IDEAS.md). Tell the agent «идея: …» to record, «какие идеи» to list, and only then «реализуй IDEA-00N» to build.
+
 ## Spec Kit
 
 Feature artifacts live under `specs/001-calorie-pwa/` (see `quickstart.md`).

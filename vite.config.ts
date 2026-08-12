@@ -15,7 +15,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "icons/*.png"],
+      includeAssets: ["favicon.svg", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"],
       manifest: {
         name: "Cal Count",
         short_name: "Cal Count",

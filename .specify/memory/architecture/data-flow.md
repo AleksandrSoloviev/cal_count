@@ -5,6 +5,7 @@
 - User UI events (onboarding, tabs, sheets, settings)
 - Browser calendar clock (local date for Today / History / Stats)
 - PWA install / service worker cache (shell assets)
+- Static brand assets: `favicon.svg` + home-screen PNGs under `public/icons/` (including apple-touch-icon)
 
 ## Core Processing Flow
 

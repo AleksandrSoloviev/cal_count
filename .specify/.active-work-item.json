@@ -1,7 +1,7 @@
 {
-  "name": "001-calorie-pwa",
-  "path": "specs/001-calorie-pwa/",
-  "mode": "full",
-  "description": "Implement Calorie App as Progressive Web App (installable to phone home screen) per Figma Make User Stories: https://www.figma.com/make/1WIksAKoOw0KOLxQHNBnRH/User-Stories-for-Calorie-App",
-  "created": "2026-08-12T10:42:47Z"
+  "name": "002-ios-pwa-home",
+  "path": "specs/002-ios-pwa-home/",
+  "mode": "lite",
+  "description": "iOS PWA home screen icon shows black square instead of logo — fix apple-touch-icon / manifest icons",
+  "created": "2026-08-12T12:19:05Z"
 }
