@@ -19,6 +19,8 @@ const App = () => {
     [store.entries, store.today],
   );
 
+  const editFoodModal = store.modal?.type === "edit-food" ? store.modal : null;
+
   if (!store.goals) {
     return <OnboardingScreen onComplete={store.setGoals} />;
   }
@@ -42,6 +44,7 @@ const App = () => {
             foods={store.foods}
             onSelectFood={(food) => store.openLogFood(food)}
             onAddNew={() => store.openModal({ type: "add-food" })}
+            onEdit={(food) => store.openModal({ type: "edit-food", food })}
             onDuplicate={(food) =>
               store.openModal({
                 type: "add-food",
@@ -84,8 +87,17 @@ const App = () => {
       )}
       {store.modal?.type === "add-food" && (
         <AddFoodSheet
+          mode="add"
           prefill={store.modal.prefill}
           onConfirm={store.addFood}
+          onClose={store.closeModal}
+        />
+      )}
+      {editFoodModal && (
+        <AddFoodSheet
+          mode="edit"
+          prefill={editFoodModal.food}
+          onConfirm={(patch) => store.updateFood(editFoodModal.food.id, patch)}
           onClose={store.closeModal}
         />
       )}

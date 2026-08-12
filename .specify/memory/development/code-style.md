@@ -17,7 +17,7 @@
 
 ## Testing Expectations
 
-- Domain math, validation, dates, storage migrate/load, and `foodFromEntry` covered by Vitest
+- Domain math, validation, dates, storage migrate/load, `foodFromEntry`, and `applyFoodUpdate` / food-edit persist path covered by Vitest
 - UI acceptance via manual mobile / Pages checklist (`quickstart.md`)
 - TDD not mandated by constitution; add unit tests when fixing domain bugs
 

@@ -3,7 +3,7 @@
 ## State-modeling conventions
 
 - App navigation is in-memory (`tab`, `modal`, `settingsOpen`) — no path router for MVP.
-- Forms (onboarding, settings, log/add sheets): local draft state + field errors; persist only on successful confirm.
+- Forms (onboarding, settings, log/add/edit sheets): local draft state + field errors; persist only on successful confirm.
 - Collections (Fridge, History, Today log): empty vs data derived from array length; no remote loading state.
 - Composite screens (Today, Stats): progress/summary always present when goals exist; secondary region empty/data independently.
 - Soft date rollover: `today` synced on midnight timer, `visibilitychange`, and `window focus`.
@@ -13,9 +13,9 @@
 - `NutrientBar` — progress vs goal with overflow styling
 - `BottomNav` — four primary tabs
 - `GoalInput` — shared onboarding/settings numeric field
-- `EntryRow` / `FoodRow` — list rows with edit/delete or overflow menu
+- `EntryRow` / `FoodRow` — list rows with overflow menu (FoodRow: Edit / Duplicate / Delete-custom)
 - `NutritionFields` — 2×2 nutrient inputs for custom foods
-- Bottom sheets: `LogFoodSheet`, `AddFoodSheet`, `DayDetailSheet`
+- Bottom sheets: `LogFoodSheet`, `AddFoodSheet` (add \| edit mode via modal `add-food` / `edit-food`), `DayDetailSheet`
 
 ## Design-token / theme conventions
 

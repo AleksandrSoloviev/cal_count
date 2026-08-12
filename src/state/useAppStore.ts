@@ -3,6 +3,7 @@ import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
 import { calcNutrition } from "../domain/nutrition";
 import type { Entry, Food, Goals, Modal, Tab } from "../domain/types";
+import { applyFoodUpdate, type FoodPatch } from "../domain/updateFood";
 import { loadDocument, saveDocument } from "../storage/localStore";
 
 const newId = (): string =>
@@ -148,6 +149,14 @@ export const useAppStore = () => {
     persist({ foods: next });
   };
 
+  const updateFood = (id: string, patch: FoodPatch) => {
+    const next = applyFoodUpdate(foods, id, patch);
+    if (next === foods) return;
+    setFoods(next);
+    persist({ foods: next });
+    closeModal();
+  };
+
   const sortedFoods = useMemo(
     () => [...foods].sort((a, b) => (b.lastUsed ?? 0) - (a.lastUsed ?? 0)),
     [foods],
@@ -173,6 +182,7 @@ export const useAppStore = () => {
     deleteEntry,
     startEditEntry,
     addFood,
+    updateFood,
     deleteFood,
   };
 };

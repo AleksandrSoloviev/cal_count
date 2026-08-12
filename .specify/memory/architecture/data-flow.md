@@ -26,9 +26,11 @@
 - Single document: `{ version, goals, foods, entries }`
 - Defaults hydrated into `foods` on first load; entries never demo-seeded
 - Orphan entries (deleted custom foods) remain editable via `foodFromEntry` reconstruction
+- Library food edit (`updateFood` / `applyFoodUpdate`) mutates `foods` only; past `Entry` snapshots (`foodName`, `nutrition`) are not rewritten
 
 ## Failure and Recovery
 
 - Corrupt JSON → empty document + default foods (fail soft)
 - localStorage unavailable → in-memory only for the session (SSR/test guard)
 - Offline after first load: SW serves shell; data stays local
+- Edited defaults persist in the saved `foods` array; `migrate` does not re-seed over a non-empty library

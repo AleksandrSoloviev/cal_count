@@ -7,11 +7,12 @@ type Props = {
   foods: Food[];
   onSelectFood: (f: Food) => void;
   onAddNew: () => void;
+  onEdit: (f: Food) => void;
   onDuplicate: (f: Food) => void;
   onDelete: (id: string) => void;
 };
 
-const FridgeScreen = ({ foods, onSelectFood, onAddNew, onDuplicate, onDelete }: Props) => (
+const FridgeScreen = ({ foods, onSelectFood, onAddNew, onEdit, onDuplicate, onDelete }: Props) => (
   <div className="px-4 pt-12 pb-6 max-w-md mx-auto relative">
     <div className="flex items-center justify-between mb-8">
       <div>
@@ -41,6 +42,7 @@ const FridgeScreen = ({ foods, onSelectFood, onAddNew, onDuplicate, onDelete }: 
             key={f.id}
             food={f}
             onSelect={() => onSelectFood(f)}
+            onEdit={() => onEdit(f)}
             onDuplicate={() => onDuplicate(f)}
             onDelete={() => onDelete(f.id)}
           />

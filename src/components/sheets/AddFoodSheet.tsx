@@ -7,12 +7,17 @@ import NutritionFields from "../NutritionFields";
 const EMPTY: Nutrient = { calories: 0, protein: 0, fat: 0, carbs: 0 };
 
 type Props = {
+  mode?: "add" | "edit";
   prefill?: Food;
   onConfirm: (f: Omit<Food, "id" | "isDefault">) => void;
   onClose: () => void;
 };
 
-const AddFoodSheet = ({ prefill, onConfirm, onClose }: Props) => {
+const AddFoodSheet = ({ mode = "add", prefill, onConfirm, onClose }: Props) => {
+  const isEdit = mode === "edit";
+  const title = isEdit ? en.addFood.editTitle : en.addFood.title;
+  const saveLabel = isEdit ? en.addFood.saveEdit : en.addFood.save;
+
   const [name, setName] = useState(prefill?.name ?? "");
   const [method, setMethod] = useState<Method>(prefill?.method ?? "grams");
   const [perUnit, setPerUnit] = useState<Nutrient>(prefill?.perUnit ?? EMPTY);
@@ -47,7 +52,7 @@ const AddFoodSheet = ({ prefill, onConfirm, onClose }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={en.addFood.title}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" aria-label={en.addFood.closeAria} onClick={onClose} />
       <div className="relative bg-background rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto pb-safe">
         <div className="flex justify-center pt-3 pb-2">
@@ -55,7 +60,7 @@ const AddFoodSheet = ({ prefill, onConfirm, onClose }: Props) => {
         </div>
         <div className="px-5 pb-8 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{en.addFood.title}</h2>
+            <h2 className="text-lg font-semibold">{title}</h2>
             <button type="button" onClick={onClose} aria-label={en.addFood.closeAria} className="p-2 min-h-11 min-w-11">
               <X size={18} aria-hidden />
             </button>
@@ -148,7 +153,7 @@ const AddFoodSheet = ({ prefill, onConfirm, onClose }: Props) => {
             onClick={handleSave}
             className="w-full bg-primary text-primary-foreground rounded-xl py-4 text-sm font-semibold min-h-11"
           >
-            {en.addFood.save}
+            {saveLabel}
           </button>
         </div>
       </div>

@@ -15,9 +15,10 @@
 - SCREEN-today → SCREEN-settings : Settings gear
 - SCREEN-today → SCREEN-log-food : edit entry
 - SCREEN-fridge → SCREEN-log-food : select food
-- SCREEN-fridge → SCREEN-add-food : Add food / Duplicate
+- SCREEN-fridge → SCREEN-add-food : Add food / Duplicate (`add-food`)
+- SCREEN-fridge → SCREEN-add-food : Edit (`edit-food`; same sheet, edit mode)
 - SCREEN-log-food → SCREEN-today : confirm log/update
-- SCREEN-add-food → SCREEN-fridge : save food
+- SCREEN-add-food → SCREEN-fridge : save food (`addFood`) or save edit (`updateFood`) / dismiss
 - SCREEN-history → SCREEN-day-detail : select past day
 - SCREEN-day-detail → SCREEN-history : dismiss
 - SCREEN-settings → SCREEN-today (shell) : Save / Cancel

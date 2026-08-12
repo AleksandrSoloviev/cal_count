@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import type { Food } from "../domain/types";
 import en from "../i18n/en";
 
 type Props = {
   food: Food;
   onSelect: () => void;
+  onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
 };
@@ -34,7 +35,7 @@ const nutritionSummary = (f: Food): string => {
   return "";
 };
 
-const FoodRow = ({ food, onSelect, onDuplicate, onDelete }: Props) => {
+const FoodRow = ({ food, onSelect, onEdit, onDuplicate, onDelete }: Props) => {
   const [menu, setMenu] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
@@ -90,6 +91,16 @@ const FoodRow = ({ food, onSelect, onDuplicate, onDelete }: Props) => {
           </button>
           {menu && (
             <div className="absolute right-4 top-12 bg-card border border-border rounded-xl shadow-lg z-10 py-1 min-w-[140px]">
+              <button
+                type="button"
+                onClick={() => {
+                  onEdit();
+                  setMenu(false);
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground w-full text-left min-h-11"
+              >
+                <Pencil size={14} aria-hidden /> {en.fridge.edit}
+              </button>
               <button
                 type="button"
                 onClick={() => {

@@ -6,9 +6,9 @@
 
 ## Major Components
 
-- `src/domain/` — types, nutrition math, validation, defaults, dates, `foodFromEntry`
+- `src/domain/` — types, nutrition math, validation, defaults, dates, `foodFromEntry`, `updateFood` (`applyFoodUpdate`)
 - `src/storage/` — versioned localStorage document
-- `src/state/useAppStore.ts` — React app state + persistence
+- `src/state/useAppStore.ts` — React app state + persistence (`addFood`, `updateFood`, `deleteFood`, entries, goals)
 - `src/screens/` + `src/components/` — UI (Today, Fridge, History, Stats, Settings, sheets)
 - `src/i18n/en.ts` — centralized English strings
 - `.specify/` — Spec Kit memory, templates, scripts

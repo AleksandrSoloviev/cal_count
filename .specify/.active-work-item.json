@@ -1,7 +1,7 @@
 {
-  "name": "002-ios-pwa-home",
-  "path": "specs/002-ios-pwa-home/",
-  "mode": "lite",
-  "description": "iOS PWA home screen icon shows black square instead of logo — fix apple-touch-icon / manifest icons",
-  "created": "2026-08-12T12:19:05Z"
+  "name": "003-edit-fridge-food",
+  "path": "specs/003-edit-fridge-food/",
+  "mode": "full",
+  "description": "необходимо добавить возможность редактирования названия и нутриентов продуктов в холодильнике",
+  "created": "2026-08-12T12:47:49Z"
 }

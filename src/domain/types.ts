@@ -50,4 +50,5 @@ export type Tab = "home" | "fridge" | "history" | "stats";
 export type Modal =
   | { type: "log-food"; food: Food }
   | { type: "add-food"; prefill?: Food }
+  | { type: "edit-food"; food: Food }
   | { type: "day-detail"; date: string };
