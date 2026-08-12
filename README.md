@@ -39,6 +39,14 @@ Enable **Settings → Pages → Source: GitHub Actions**.
 
 Site URL: `https://<user>.github.io/cal_count/`
 
+## Roadmap
+
+1. **Web MVP (current)** — dogfood the PWA on GitHub Pages (flows, local data, install to home screen).
+2. **React Native (next)** — after web validation, port the same functionality to a cross-platform React Native app (iOS/Android).
+3. **Backend / sync** — only after native direction is underway; not part of the web MVP.
+
+Details: `.specify/memory/context.md` and `.specify/memory/architecture/adr/2026-08-12-web-mvp-then-react-native.md`.
+
 ## Spec Kit
 
 Feature artifacts live under `specs/001-calorie-pwa/` (see `quickstart.md`).

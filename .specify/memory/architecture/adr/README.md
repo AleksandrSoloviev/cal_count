@@ -8,4 +8,4 @@
 
 ## Decisions
 
-- None recorded yet. First candidates once product work starts: domain confirmation, system shape, language/framework, persistence, auth.
+- [2026-08-12 — Web MVP first, then React Native](./2026-08-12-web-mvp-then-react-native.md) — dogfood PWA on web, then port product to React Native.

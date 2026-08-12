@@ -27,3 +27,4 @@
 
 - `vite` `base` and PWA `scope`/`start_url` must remain `/cal_count/`.
 - No seeded demo history in production builds.
+- Roadmap: validate web PWA first; then port to React Native (see ADR `2026-08-12-web-mvp-then-react-native.md`).
