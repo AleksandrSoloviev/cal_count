@@ -45,6 +45,21 @@ export interface Entry {
   nutrition: Nutrient;
 }
 
+export type SurveySex = "man" | "woman" | "preferNotToSay";
+
+export type ActivityLevel = "low" | "medium" | "high";
+
+export type GoalType = "lose" | "maintain" | "gain";
+
+export type SurveyAnswers = {
+  sex: SurveySex;
+  heightCm: number;
+  weightKg: number;
+  ageYears: number;
+  activity: ActivityLevel;
+  goalType: GoalType;
+};
+
 export type Tab = "home" | "fridge" | "history" | "stats";
 
 export type Modal =

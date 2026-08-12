@@ -10,8 +10,8 @@
 
 ## Current Scope
 
-- Onboarding + Settings for goals; Today log; Fridge food library; History; Stats; PWA install on GitHub Pages `/cal_count/`.
-- Spec Kit durable memory under `.specify/memory/`; work item `specs/001-calorie-pwa/`.
+- Onboarding (know C/P/F/C or Mifflin–St Jeor survey → editable goals) + Settings for goals; Today log; Fridge food library; History; Stats; PWA install on GitHub Pages `/cal_count/`.
+- Spec Kit durable memory under `.specify/memory/`; feature work under `specs/` (e.g. `004-mifflin-jeor`).
 - MVP is **web-only** (browser / PWA) for dogfooding before any native client.
 
 ## Roadmap (repo-level plan)
@@ -28,6 +28,7 @@ See ADR: `.specify/memory/architecture/adr/2026-08-12-web-mvp-then-react-native.
 - Shipping React Native in the current web MVP phase.
 - Second locale / in-app language switch (strings are localization-ready).
 - Barcode scanning or third-party nutrition databases.
+- Persisting body-profile survey answers or embedding the Mifflin calculator in Settings (first-run onboarding only).
 
 ## Open Questions
 

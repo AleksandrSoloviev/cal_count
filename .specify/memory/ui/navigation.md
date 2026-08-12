@@ -5,12 +5,13 @@
 | Route | Guard | Where it sends on denial |
 |-------|-------|--------------------------|
 | App shell / tabs | `goals != null` | → SCREEN-onboarding |
-| SCREEN-onboarding | first launch / cleared storage | stays until goals saved → shell tab `home` |
+| SCREEN-onboarding | first launch / cleared storage (`goals == null`) | stays until goals saved → shell tab `home`; mid-survey reload discards wizard state and restarts at `path` |
 | SCREEN-settings | `goals != null` | unreachable without shell |
 
 ## Transition edges
 
-- SCREEN-onboarding → SCREEN-today : goals saved (`setGoals`)
+- SCREEN-onboarding (internal): `path` → `know` \| `sex`; `sex` → `body` → `goal` → `review`; Back reverses those edges (`sex` Back → `path`); Redo from `review` → `sex` (clears survey, no persist)
+- SCREEN-onboarding → SCREEN-today : goals saved (`setGoals`) via know submit or review Accept
 - SCREEN-today → SCREEN-fridge : Add food (`setTab('fridge')`)
 - SCREEN-today → SCREEN-settings : Settings gear
 - SCREEN-today → SCREEN-log-food : edit entry
@@ -28,7 +29,14 @@
 
 ```mermaid
 flowchart LR
-  ON[SCREEN-onboarding] --> TODAY[SCREEN-today]
+  PATH[onboarding path] --> KNOW[know form]
+  PATH --> SEX[sex]
+  SEX --> BODY[body]
+  BODY --> GOAL[goal]
+  GOAL --> REVIEW[review]
+  REVIEW -->|Accept / know submit| TODAY[SCREEN-today]
+  KNOW -->|Get started| TODAY
+  REVIEW -->|Redo| SEX
   TODAY --> FRIDGE[SCREEN-fridge]
   TODAY --> SETTINGS[SCREEN-settings]
   TODAY --> LOG[SCREEN-log-food]

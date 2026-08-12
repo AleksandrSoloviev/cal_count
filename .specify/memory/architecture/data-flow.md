@@ -10,9 +10,9 @@
 ## Core Processing Flow
 
 1. `useAppStore` loads versioned document from `localStorage` (`cal_count.v1`).
-2. Guard: no goals → Onboarding; else AppShell with tab content.
-3. Mutations (goals, foods, entries) update React state and rewrite the storage document.
-4. Nutrition derived via `domain/nutrition` (grams/ml/pieces/custom formulas).
+2. Guard: no goals → Onboarding wizard (`path` → know form or survey → optional Mifflin–St Jeor prefill); else AppShell with tab content.
+3. Mutations (goals, foods, entries) update React state and rewrite the storage document. Survey answers are session-only and never written to storage.
+4. Nutrition derived via `domain/nutrition` (grams/ml/pieces/custom formulas). Daily goal targets may be entered manually or derived via `domain/mifflin` (`calculateGoalsFromSurvey`) before Accept.
 5. Soft date sync updates `today` without full page reload.
 
 ## Outputs

@@ -1,6 +1,20 @@
-import type { Goals, Method } from "./types";
+import type { ActivityLevel, Goals, Method } from "./types";
 
 export type FieldErrors = Partial<Record<keyof Goals, string>>;
+
+export type SurveyBodyErrors = Partial<{
+  heightCm: string;
+  weightKg: string;
+  ageYears: string;
+  activity: string;
+}>;
+
+export type SurveyBodyDraft = {
+  heightCm: string;
+  weightKg: string;
+  ageYears: string;
+  activity: ActivityLevel | null;
+};
 
 export const validateGoals = (vals: {
   calories: string;
@@ -29,6 +43,56 @@ export const validateGoals = (vals: {
 
   if (Object.keys(errors).length > 0) return { ok: false, errors };
   return { ok: true, goals: { calories: cal, protein: prot, fat: fatV, carbs: carbsV } };
+};
+
+export const validateSurveyBody = (
+  draft: SurveyBodyDraft,
+):
+  | {
+      ok: true;
+      heightCm: number;
+      weightKg: number;
+      ageYears: number;
+      activity: ActivityLevel;
+    }
+  | { ok: false; errors: SurveyBodyErrors } => {
+  const errors: SurveyBodyErrors = {};
+  const heightCm = parseFloat(draft.heightCm);
+  const weightKg = parseFloat(draft.weightKg);
+  const ageRaw = Number(draft.ageYears);
+  const ageYears = parseInt(draft.ageYears, 10);
+
+  if (
+    draft.heightCm === "" ||
+    Number.isNaN(heightCm) ||
+    heightCm < 100 ||
+    heightCm > 250
+  ) {
+    errors.heightCm = "Enter height between 100 and 250 cm";
+  }
+  if (
+    draft.weightKg === "" ||
+    Number.isNaN(weightKg) ||
+    weightKg < 30 ||
+    weightKg > 300
+  ) {
+    errors.weightKg = "Enter weight between 30 and 300 kg";
+  }
+  if (
+    draft.ageYears === "" ||
+    Number.isNaN(ageRaw) ||
+    !Number.isInteger(ageRaw) ||
+    ageYears < 14 ||
+    ageYears > 100
+  ) {
+    errors.ageYears = "Enter age as a whole number between 14 and 100";
+  }
+  if (!draft.activity) {
+    errors.activity = "Select an activity level";
+  }
+
+  if (Object.keys(errors).length > 0 || !draft.activity) return { ok: false, errors };
+  return { ok: true, heightCm, weightKg, ageYears, activity: draft.activity };
 };
 
 export const maxQtyForMethod = (method: Method): number =>
