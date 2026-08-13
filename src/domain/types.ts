@@ -45,6 +45,21 @@ export interface Entry {
   nutrition: Nutrient;
 }
 
+/** Derived cluster for one calendar day. Not persisted. */
+export type Meal = {
+  index: number;
+  entries: Entry[];
+  nutrition: Nutrient;
+  startTs: number;
+  endTs: number;
+};
+
+/** Session UI focus after add/edit/delete. Not persisted. */
+export type EntryFocus =
+  | { kind: "entry"; id: string }
+  | { kind: "remaining"; ids: string[] }
+  | { kind: "latest" };
+
 export type SurveySex = "man" | "woman" | "preferNotToSay";
 
 export type ActivityLevel = "low" | "medium" | "high";

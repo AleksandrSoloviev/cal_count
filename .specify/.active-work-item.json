@@ -1,7 +1,7 @@
 {
-  "name": "004-mifflin-jeor",
-  "path": "specs/004-mifflin-jeor/",
+  "name": "005-meal-grouping",
+  "path": "specs/005-meal-grouping/",
   "mode": "full",
-  "description": "Первым шагом давай добавим флоу выбора Либо я знаю свой кбжу либо не знаю. Если знаю, то открывается текущая страница с полями кбжу, если не знаю, то флоу по шагам: 1) я мужчина, я женщина, не хочу отвечать 2) далее рост вес и тип активности (слабая, средняя и сильная) 3) цель - похудеть, удержание веса, набрать мышцы. Для расчета используй формулу Mifflin–St Jeor. После выполненного расчета покажи страницу с полями кбжу которые предзаполнены по расчету (у пользователя остается возможность менять значения в полях). Есть возможность принять или пройти опрос заново",
-  "created": "2026-08-12T13:28:39Z"
+  "description": "Automatically group today's logged food into numbered meal accordions. Entries within a 30-minute time window belong to the same meal (Meal 1, Meal 2, …). Display-only grouping; do not add the eat-out / skip-fridge logging flow.",
+  "created": "2026-08-13T10:39:43Z"
 }

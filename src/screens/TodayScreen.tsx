@@ -1,16 +1,19 @@
-import { Plus, Settings } from "lucide-react";
-import { UtensilsCrossed } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Settings, UtensilsCrossed } from "lucide-react";
 import { greetingForHour } from "../domain/dates";
+import { groupEntriesIntoMeals, resolveExpandedMealIndex } from "../domain/meals";
 import { NUTRIENT_META, sumNutrition } from "../domain/nutrition";
-import type { Entry, Food, Goals } from "../domain/types";
+import type { Entry, EntryFocus, Food, Goals } from "../domain/types";
 import en from "../i18n/en";
-import EntryRow from "../components/EntryRow";
+import MealList from "../components/MealList";
 import NutrientBar from "../components/NutrientBar";
 
 type Props = {
   goals: Goals;
   entries: Entry[];
   foods: Food[];
+  entryFocus: EntryFocus;
+  focusSeq: number;
   onAddFood: () => void;
   onEditEntry: (e: Entry) => void;
   onDeleteEntry: (id: string) => void;
@@ -21,6 +24,8 @@ const TodayScreen = ({
   goals,
   entries,
   foods,
+  entryFocus,
+  focusSeq,
   onAddFood,
   onEditEntry,
   onDeleteEntry,
@@ -40,6 +45,44 @@ const TodayScreen = ({
     day: "numeric",
   });
   const totals = sumNutrition(entries);
+  const meals = useMemo(() => groupEntriesIntoMeals(entries), [entries]);
+
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(() =>
+    resolveExpandedMealIndex(meals, { kind: "latest" }),
+  );
+  const [appliedFocusSeq, setAppliedFocusSeq] = useState(-1);
+
+  useEffect(() => {
+    if (meals.length === 0) {
+      setExpandedIndex(null);
+      setAppliedFocusSeq(focusSeq);
+      return;
+    }
+    if (appliedFocusSeq === -1 || focusSeq !== appliedFocusSeq) {
+      setExpandedIndex(
+        resolveExpandedMealIndex(meals, appliedFocusSeq === -1 ? { kind: "latest" } : entryFocus),
+      );
+      setAppliedFocusSeq(focusSeq);
+      return;
+    }
+    setExpandedIndex((current) => {
+      if (current === null) return null;
+      if (current >= meals.length) return meals.length - 1;
+      return current;
+    });
+  }, [meals, focusSeq, entryFocus, appliedFocusSeq]);
+
+  const handleToggle = (index: number) => {
+    setExpandedIndex((current) => (current === index ? null : index));
+  };
+
+  const handleAddFood = () => {
+    onAddFood();
+  };
+
+  const handleOpenSettings = () => {
+    onOpenSettings();
+  };
 
   return (
     <div className="px-4 pt-12 pb-6 max-w-md mx-auto">
@@ -52,7 +95,7 @@ const TodayScreen = ({
         </div>
         <button
           type="button"
-          onClick={onOpenSettings}
+          onClick={handleOpenSettings}
           aria-label={en.today.settingsAria}
           className="p-2.5 rounded-xl text-muted-foreground min-h-11 min-w-11"
         >
@@ -79,7 +122,7 @@ const TodayScreen = ({
         </h2>
         <button
           type="button"
-          onClick={onAddFood}
+          onClick={handleAddFood}
           className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-lg active:scale-95 min-h-11"
         >
           <Plus size={12} aria-hidden />
@@ -94,17 +137,14 @@ const TodayScreen = ({
           <p className="text-xs text-muted-foreground/60 mt-1">{en.today.emptyHint}</p>
         </div>
       ) : (
-        <div className="bg-card rounded-2xl border border-border px-4">
-          {entries.map((e) => (
-            <EntryRow
-              key={e.id}
-              entry={e}
-              foods={foods}
-              onEdit={() => onEditEntry(e)}
-              onDelete={() => onDeleteEntry(e.id)}
-            />
-          ))}
-        </div>
+        <MealList
+          meals={meals}
+          foods={foods}
+          expandedIndex={expandedIndex}
+          onToggle={handleToggle}
+          onEdit={onEditEntry}
+          onDelete={onDeleteEntry}
+        />
       )}
     </div>
   );

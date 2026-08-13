@@ -144,6 +144,11 @@ const en = {
     fat: "Fat",
     carbs: "Carbs",
   },
+  meal: {
+    title: (n: number) => `Meal ${n}`,
+    expandAria: (n: number) => `Expand meal ${n}`,
+    collapseAria: (n: number) => `Collapse meal ${n}`,
+  },
 } as const;
 
 export type EnStrings = typeof en;

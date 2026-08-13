@@ -7,8 +7,9 @@ import en from "../i18n/en";
 type Props = {
   entry: Entry;
   foods: Food[];
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  readOnly?: boolean;
 };
 
 const describeQty = (e: Entry, foods: Food[]): string => {
@@ -31,7 +32,7 @@ const describeQty = (e: Entry, foods: Food[]): string => {
   return "";
 };
 
-const EntryRow = ({ entry, foods, onEdit, onDelete }: Props) => {
+const EntryRow = ({ entry, foods, onEdit, onDelete, readOnly = false }: Props) => {
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -51,7 +52,7 @@ const EntryRow = ({ entry, foods, onEdit, onDelete }: Props) => {
           </span>
         </div>
       </div>
-      {confirming ? (
+      {readOnly ? null : confirming ? (
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             type="button"
@@ -63,7 +64,7 @@ const EntryRow = ({ entry, foods, onEdit, onDelete }: Props) => {
           <button
             type="button"
             onClick={() => {
-              onDelete();
+              onDelete?.();
               setConfirming(false);
             }}
             className="text-xs text-red-500 font-medium px-2 py-1 rounded-lg min-h-11"

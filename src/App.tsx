@@ -33,6 +33,8 @@ const App = () => {
             goals={store.goals}
             entries={todayEntries}
             foods={store.foods}
+            entryFocus={store.entryFocus}
+            focusSeq={store.focusSeq}
             onAddFood={() => store.setTab("fridge")}
             onEditEntry={store.startEditEntry}
             onDeleteEntry={store.deleteEntry}

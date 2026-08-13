@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
+import { groupEntriesIntoMeals } from "../domain/meals";
 import { calcNutrition } from "../domain/nutrition";
-import type { Entry, Food, Goals, Modal, Tab } from "../domain/types";
+import type { Entry, EntryFocus, Food, Goals, Modal, Tab } from "../domain/types";
 import { applyFoodUpdate, type FoodPatch } from "../domain/updateFood";
 import { loadDocument, saveDocument } from "../storage/localStore";
 
@@ -21,6 +22,8 @@ export const useAppStore = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
   const [today, setToday] = useState(() => todayStr());
+  const [entryFocus, setEntryFocus] = useState<EntryFocus>({ kind: "latest" });
+  const [focusSeq, setFocusSeq] = useState(0);
 
   const persist = useCallback(
     (next: { goals?: Goals | null; foods?: Food[]; entries?: Entry[] }) => {
@@ -119,11 +122,23 @@ export const useAppStore = () => {
     setEntries(nextEntries);
     setFoods(nextFoods);
     persist({ entries: nextEntries, foods: nextFoods });
+    setEntryFocus({ kind: "entry", id: entry.id });
+    setFocusSeq((n) => n + 1);
     closeModal();
     setTab("home");
   };
 
   const deleteEntry = (id: string) => {
+    const target = entries.find((e) => e.id === id);
+    if (target) {
+      const dayMeals = groupEntriesIntoMeals(entries.filter((e) => e.date === target.date));
+      const meal = dayMeals.find((m) => m.entries.some((e) => e.id === id));
+      const remainingIds = meal ? meal.entries.filter((e) => e.id !== id).map((e) => e.id) : [];
+      setEntryFocus(
+        remainingIds.length > 0 ? { kind: "remaining", ids: remainingIds } : { kind: "latest" },
+      );
+      setFocusSeq((n) => n + 1);
+    }
     const next = entries.filter((e) => e.id !== id);
     setEntries(next);
     persist({ entries: next });
@@ -178,6 +193,8 @@ export const useAppStore = () => {
     closeSettings,
     editingEntry,
     today,
+    entryFocus,
+    focusSeq,
     logOrUpdateEntry,
     deleteEntry,
     startEditEntry,
