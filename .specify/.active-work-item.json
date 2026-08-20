@@ -1,7 +1,7 @@
 {
-  "name": "006-weekly-remaining",
-  "path": "specs/006-weekly-remaining/",
+  "name": "007-fridge-popularity",
+  "path": "specs/007-fridge-popularity/",
   "mode": "full",
-  "description": "On the Today C/P/F/C card, add a day/week toggle so remaining food for the week is visible. Week is Saturday–Friday so weekend overeating can be corrected on weekdays.",
-  "created": "2026-08-20T12:58:26Z"
+  "description": "Сортировать продукты в холодильнике по популярности (частота использования)",
+  "created": "2026-08-20T14:07:47Z"
 }

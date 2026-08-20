@@ -4,6 +4,7 @@ import { foodFromEntry } from "../domain/foodFromEntry";
 import { groupEntriesIntoMeals } from "../domain/meals";
 import { calcNutrition } from "../domain/nutrition";
 import type { CardMode, Entry, EntryFocus, Food, Goals, Modal, Tab } from "../domain/types";
+import { sortFoodsByPopularity } from "../domain/foodPopularity";
 import { applyFoodUpdate, type FoodPatch } from "../domain/updateFood";
 import { loadDocument, saveDocument } from "../storage/localStore";
 
@@ -174,8 +175,8 @@ export const useAppStore = () => {
   };
 
   const sortedFoods = useMemo(
-    () => [...foods].sort((a, b) => (b.lastUsed ?? 0) - (a.lastUsed ?? 0)),
-    [foods],
+    () => sortFoodsByPopularity(foods, entries),
+    [foods, entries],
   );
 
   return {

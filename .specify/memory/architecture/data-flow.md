@@ -14,7 +14,8 @@
 3. Mutations (goals, foods, entries) update React state and rewrite the storage document. Survey answers are session-only and never written to storage.
 4. Nutrition derived via `domain/nutrition` (grams/ml/pieces/custom formulas). Daily goal targets may be entered manually or derived via `domain/mifflin` (`calculateGoalsFromSurvey`) before Accept.
 5. Today / day-detail lists group that date’s entries via `domain/meals` (consecutive-gap chaining, ≤ 30 minutes). `Meal` is derived at read time; not written to storage.
-6. Soft date sync updates `today` without full page reload.
+6. Library list order (Fridge via `store.foods`) is derived at read time: all-time entry count per `foodId`, then `lastUsed`, then name/`id` (`domain/foodPopularity`). No persisted usage counter.
+7. Soft date sync updates `today` without full page reload.
 
 ## Outputs
 

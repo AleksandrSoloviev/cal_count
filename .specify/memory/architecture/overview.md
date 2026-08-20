@@ -6,9 +6,9 @@
 
 ## Major Components
 
-- `src/domain/` — types, nutrition math, Mifflin–St Jeor goals calculator (`mifflin.ts`), meal grouping (`meals.ts`: `groupEntriesIntoMeals`, `resolveExpandedMealIndex`), validation, defaults, dates, `foodFromEntry`, `updateFood` (`applyFoodUpdate`)
+- `src/domain/` — types, nutrition math, Mifflin–St Jeor goals calculator (`mifflin.ts`), meal grouping (`meals.ts`: `groupEntriesIntoMeals`, `resolveExpandedMealIndex`), fridge popularity sort (`foodPopularity.ts`: `countFoodUsage`, `sortFoodsByPopularity`), validation, defaults, dates, `foodFromEntry`, `updateFood` (`applyFoodUpdate`)
 - `src/storage/` — versioned localStorage document
-- `src/state/useAppStore.ts` — React app state + persistence (`addFood`, `updateFood`, `deleteFood`, entries, goals)
+- `src/state/useAppStore.ts` — React app state + persistence (`addFood`, `updateFood`, `deleteFood`, entries, goals); exports library `foods` ordered by usage frequency
 - `src/screens/` + `src/components/` — UI (Today, Fridge, History, Stats, Settings, sheets)
 - `src/i18n/en.ts` — centralized English strings
 - `.specify/` — Spec Kit memory, templates, scripts
