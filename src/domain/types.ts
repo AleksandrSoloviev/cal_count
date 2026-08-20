@@ -60,6 +60,15 @@ export type EntryFocus =
   | { kind: "remaining"; ids: string[] }
   | { kind: "latest" };
 
+/** Session UI for Today progress card. Not persisted. */
+export type CardMode = "day" | "week";
+
+/** Derived Saturday–Friday window. Not persisted. */
+export type WeekWindow = {
+  start: string;
+  end: string;
+};
+
 export type SurveySex = "man" | "woman" | "preferNotToSay";
 
 export type ActivityLevel = "low" | "medium" | "high";

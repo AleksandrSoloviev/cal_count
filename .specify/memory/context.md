@@ -10,8 +10,8 @@
 
 ## Current Scope
 
-- Onboarding (know C/P/F/C or Mifflin–St Jeor survey → editable goals) + Settings for goals; Today log; Fridge food library; History; Stats; PWA install on GitHub Pages `/cal_count/`.
-- Spec Kit durable memory under `.specify/memory/`; feature work under `specs/` (e.g. `004-mifflin-jeor`).
+- Onboarding (know C/P/F/C or Mifflin–St Jeor survey → editable goals) + Settings for goals; Today log grouped into numbered meals (30-minute consecutive-gap on entry `ts`); Fridge food library; History; Stats; PWA install on GitHub Pages `/cal_count/`.
+- Spec Kit durable memory under `.specify/memory/`; feature work under `specs/` (e.g. `005-meal-grouping`).
 - MVP is **web-only** (browser / PWA) for dogfooding before any native client.
 
 ## Roadmap (repo-level plan)

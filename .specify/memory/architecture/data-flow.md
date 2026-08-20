@@ -13,7 +13,8 @@
 2. Guard: no goals → Onboarding wizard (`path` → know form or survey → optional Mifflin–St Jeor prefill); else AppShell with tab content.
 3. Mutations (goals, foods, entries) update React state and rewrite the storage document. Survey answers are session-only and never written to storage.
 4. Nutrition derived via `domain/nutrition` (grams/ml/pieces/custom formulas). Daily goal targets may be entered manually or derived via `domain/mifflin` (`calculateGoalsFromSurvey`) before Accept.
-5. Soft date sync updates `today` without full page reload.
+5. Today / day-detail lists group that date’s entries via `domain/meals` (consecutive-gap chaining, ≤ 30 minutes). `Meal` is derived at read time; not written to storage.
+6. Soft date sync updates `today` without full page reload.
 
 ## Outputs
 
@@ -27,6 +28,7 @@
 - Defaults hydrated into `foods` on first load; entries never demo-seeded
 - Orphan entries (deleted custom foods) remain editable via `foodFromEntry` reconstruction
 - Library food edit (`updateFood` / `applyFoodUpdate`) mutates `foods` only; past `Entry` snapshots (`foodName`, `nutrition`) are not rewritten
+- Session UI `entryFocus` / `focusSeq` (which meal accordion to expand after add/edit/delete) is never passed to `saveDocument`
 
 ## Failure and Recovery
 

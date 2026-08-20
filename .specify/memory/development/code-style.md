@@ -17,7 +17,7 @@
 
 ## Testing Expectations
 
-- Domain math (nutrition, Mifflin–St Jeor / `calculateGoalsFromSurvey`), validation (including `validateSurveyBody`), dates, storage migrate/load, `foodFromEntry`, and `applyFoodUpdate` / food-edit persist path covered by Vitest
+- Domain math (nutrition, Mifflin–St Jeor / `calculateGoalsFromSurvey`), validation (including `validateSurveyBody`), dates, storage migrate/load, `foodFromEntry`, `applyFoodUpdate` / food-edit persist path, and meal grouping (`groupEntriesIntoMeals`, `resolveExpandedMealIndex`) covered by Vitest
 - UI acceptance via manual mobile / Pages checklist (`quickstart.md`)
 - TDD not mandated by constitution; add unit tests when fixing domain bugs
 

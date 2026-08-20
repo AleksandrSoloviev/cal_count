@@ -1,7 +1,7 @@
 {
-  "name": "005-meal-grouping",
-  "path": "specs/005-meal-grouping/",
+  "name": "006-weekly-remaining",
+  "path": "specs/006-weekly-remaining/",
   "mode": "full",
-  "description": "Automatically group today's logged food into numbered meal accordions. Entries within a 30-minute time window belong to the same meal (Meal 1, Meal 2, …). Display-only grouping; do not add the eat-out / skip-fridge logging flow.",
-  "created": "2026-08-13T10:39:43Z"
+  "description": "On the Today C/P/F/C card, add a day/week toggle so remaining food for the week is visible. Week is Saturday–Friday so weekend overeating can be corrected on weekdays.",
+  "created": "2026-08-20T12:58:26Z"
 }

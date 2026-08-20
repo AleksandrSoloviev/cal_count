@@ -6,7 +6,7 @@
 
 ## Major Components
 
-- `src/domain/` — types, nutrition math, Mifflin–St Jeor goals calculator (`mifflin.ts`), validation, defaults, dates, `foodFromEntry`, `updateFood` (`applyFoodUpdate`)
+- `src/domain/` — types, nutrition math, Mifflin–St Jeor goals calculator (`mifflin.ts`), meal grouping (`meals.ts`: `groupEntriesIntoMeals`, `resolveExpandedMealIndex`), validation, defaults, dates, `foodFromEntry`, `updateFood` (`applyFoodUpdate`)
 - `src/storage/` — versioned localStorage document
 - `src/state/useAppStore.ts` — React app state + persistence (`addFood`, `updateFood`, `deleteFood`, entries, goals)
 - `src/screens/` + `src/components/` — UI (Today, Fridge, History, Stats, Settings, sheets)

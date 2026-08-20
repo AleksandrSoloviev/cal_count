@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Settings, UtensilsCrossed } from "lucide-react";
-import { greetingForHour } from "../domain/dates";
+import { fmtWeekRange, greetingForHour, weekBoundsSatFri } from "../domain/dates";
 import { groupEntriesIntoMeals, resolveExpandedMealIndex } from "../domain/meals";
 import { NUTRIENT_META, sumNutrition } from "../domain/nutrition";
-import type { Entry, EntryFocus, Food, Goals } from "../domain/types";
+import { entriesInWeek, remainingNutrient, weeklyGoals } from "../domain/week";
+import type { CardMode, Entry, EntryFocus, Food, Goals } from "../domain/types";
 import en from "../i18n/en";
 import MealList from "../components/MealList";
 import NutrientBar from "../components/NutrientBar";
@@ -11,9 +12,13 @@ import NutrientBar from "../components/NutrientBar";
 type Props = {
   goals: Goals;
   entries: Entry[];
+  allEntries: Entry[];
+  today: string;
   foods: Food[];
   entryFocus: EntryFocus;
   focusSeq: number;
+  cardMode: CardMode;
+  onCardModeChange: (mode: CardMode) => void;
   onAddFood: () => void;
   onEditEntry: (e: Entry) => void;
   onDeleteEntry: (id: string) => void;
@@ -23,9 +28,13 @@ type Props = {
 const TodayScreen = ({
   goals,
   entries,
+  allEntries,
+  today,
   foods,
   entryFocus,
   focusSeq,
+  cardMode,
+  onCardModeChange,
   onAddFood,
   onEditEntry,
   onDeleteEntry,
@@ -39,12 +48,30 @@ const TodayScreen = ({
       : g === "afternoon"
         ? en.today.greetingAfternoon
         : en.today.greetingEvening;
-  const dayLabel = now.toLocaleDateString("en-US", {
+  const dayLabel = new Date(`${today}T12:00:00`).toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
   });
-  const totals = sumNutrition(entries);
+
+  const dayTotals = useMemo(() => sumNutrition(entries), [entries]);
+  const weekView = useMemo(() => {
+    const window = weekBoundsSatFri(today);
+    const weekEntries = entriesInWeek(allEntries, today);
+    const current = sumNutrition(weekEntries);
+    const goal = weeklyGoals(goals);
+    return {
+      window,
+      current,
+      goal,
+      remaining: remainingNutrient(current, goal),
+      rangeLabel: fmtWeekRange(window.start, window.end),
+    };
+  }, [allEntries, today, goals]);
+
+  const barCurrent = cardMode === "day" ? dayTotals : weekView.current;
+  const barGoal = cardMode === "day" ? goals : weekView.goal;
+
   const meals = useMemo(() => groupEntriesIntoMeals(entries), [entries]);
 
   const [expandedIndex, setExpandedIndex] = useState<number | null>(() =>
@@ -84,6 +111,14 @@ const TodayScreen = ({
     onOpenSettings();
   };
 
+  const handleSelectDay = () => {
+    onCardModeChange("day");
+  };
+
+  const handleSelectWeek = () => {
+    onCardModeChange("week");
+  };
+
   return (
     <div className="px-4 pt-12 pb-6 max-w-md mx-auto">
       <div className="mb-8 flex items-start justify-between gap-3">
@@ -104,14 +139,53 @@ const TodayScreen = ({
       </div>
 
       <div className="bg-card rounded-2xl p-5 shadow-sm border border-border mb-6 space-y-4">
+        <div
+          role="radiogroup"
+          aria-label={en.today.periodAria}
+          className="flex rounded-xl bg-muted p-1 gap-1"
+        >
+          <button
+            type="button"
+            role="radio"
+            aria-checked={cardMode === "day"}
+            onClick={handleSelectDay}
+            className={`flex-1 min-h-11 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
+              cardMode === "day"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground"
+            }`}
+          >
+            {en.today.day}
+          </button>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={cardMode === "week"}
+            onClick={handleSelectWeek}
+            className={`flex-1 min-h-11 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
+              cardMode === "week"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground"
+            }`}
+          >
+            {en.today.week}
+          </button>
+        </div>
+
+        {cardMode === "week" && (
+          <p className="text-xs text-muted-foreground text-center -mt-1">{weekView.rangeLabel}</p>
+        )}
+
         {NUTRIENT_META.map((m) => (
           <NutrientBar
             key={m.key}
             label={m.label}
             unit={m.unit}
             color={m.color}
-            current={totals[m.key]}
-            goal={goals[m.key]}
+            current={barCurrent[m.key]}
+            goal={barGoal[m.key]}
+            remaining={cardMode === "week" ? weekView.remaining[m.key] : undefined}
+            remainingLabel={cardMode === "week" ? en.today.left : undefined}
           />
         ))}
       </div>

@@ -3,7 +3,7 @@ import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
 import { groupEntriesIntoMeals } from "../domain/meals";
 import { calcNutrition } from "../domain/nutrition";
-import type { Entry, EntryFocus, Food, Goals, Modal, Tab } from "../domain/types";
+import type { CardMode, Entry, EntryFocus, Food, Goals, Modal, Tab } from "../domain/types";
 import { applyFoodUpdate, type FoodPatch } from "../domain/updateFood";
 import { loadDocument, saveDocument } from "../storage/localStore";
 
@@ -24,6 +24,7 @@ export const useAppStore = () => {
   const [today, setToday] = useState(() => todayStr());
   const [entryFocus, setEntryFocus] = useState<EntryFocus>({ kind: "latest" });
   const [focusSeq, setFocusSeq] = useState(0);
+  const [cardMode, setCardMode] = useState<CardMode>("day");
 
   const persist = useCallback(
     (next: { goals?: Goals | null; foods?: Food[]; entries?: Entry[] }) => {
@@ -195,6 +196,8 @@ export const useAppStore = () => {
     today,
     entryFocus,
     focusSeq,
+    cardMode,
+    setCardMode,
     logOrUpdateEntry,
     deleteEntry,
     startEditEntry,

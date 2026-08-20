@@ -32,9 +32,13 @@ const App = () => {
           <TodayScreen
             goals={store.goals}
             entries={todayEntries}
+            allEntries={store.entries}
+            today={store.today}
             foods={store.foods}
             entryFocus={store.entryFocus}
             focusSeq={store.focusSeq}
+            cardMode={store.cardMode}
+            onCardModeChange={store.setCardMode}
             onAddFood={() => store.setTab("fridge")}
             onEditEntry={store.startEditEntry}
             onDeleteEntry={store.deleteEntry}

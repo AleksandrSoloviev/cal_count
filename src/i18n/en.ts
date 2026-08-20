@@ -61,6 +61,10 @@ const en = {
     emptyHint: 'Tap "Add food" to get started.',
     addFood: "Add food",
     settingsAria: "Settings",
+    day: "Day",
+    week: "Week",
+    left: "left",
+    periodAria: "Progress period",
   },
   entry: {
     cancel: "Cancel",
