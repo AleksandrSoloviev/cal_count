@@ -90,4 +90,5 @@ export type Modal =
   | { type: "log-food"; food: Food }
   | { type: "add-food"; prefill?: Food }
   | { type: "edit-food"; food: Food }
-  | { type: "day-detail"; date: string };
+  | { type: "day-detail"; date: string }
+  | { type: "move-meal"; entryIds: string[]; sourceDate: string };

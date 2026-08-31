@@ -1,3 +1,4 @@
+import { shiftTsToDate } from "./dates";
 import { sumNutrition } from "./nutrition";
 import type { Entry, EntryFocus, Meal } from "./types";
 
@@ -49,4 +50,22 @@ export const resolveExpandedMealIndex = (meals: Meal[], focus: EntryFocus): numb
     if (i !== -1) return i;
   }
   return latest;
+};
+
+export const moveEntriesToDate = (
+  entries: Entry[],
+  ids: readonly string[],
+  targetDate: string,
+): { entries: Entry[]; changed: boolean } => {
+  if (ids.length === 0) return { entries, changed: false };
+  const idSet = new Set(ids);
+  const matched = entries.filter((e) => idSet.has(e.id));
+  if (matched.length === 0) return { entries, changed: false };
+  if (matched.every((e) => e.date === targetDate)) return { entries, changed: false };
+
+  const next = entries.map((e) => {
+    if (!idSet.has(e.id) || e.date === targetDate) return e;
+    return { ...e, date: targetDate, ts: shiftTsToDate(e.ts, targetDate) };
+  });
+  return { entries: next, changed: true };
 };

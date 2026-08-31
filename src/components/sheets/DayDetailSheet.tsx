@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { fmtDate } from "../../domain/dates";
 import { groupEntriesIntoMeals } from "../../domain/meals";
 import { NUTRIENT_META, sumNutrition } from "../../domain/nutrition";
-import type { Entry, Food, Goals } from "../../domain/types";
+import type { Entry, Food, Goals, Meal } from "../../domain/types";
 import en from "../../i18n/en";
 import MealList from "../MealList";
 import NutrientBar from "../NutrientBar";
@@ -14,9 +14,11 @@ type Props = {
   foods: Food[];
   goals: Goals;
   onClose: () => void;
+  onMove?: (meal: Meal) => void;
+  inert?: boolean;
 };
 
-const DayDetailSheet = ({ date, entries, foods, goals, onClose }: Props) => {
+const DayDetailSheet = ({ date, entries, foods, goals, onClose, onMove, inert = false }: Props) => {
   const totals = sumNutrition(entries);
   const meals = useMemo(() => groupEntriesIntoMeals(entries), [entries]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(() => {
@@ -29,11 +31,19 @@ const DayDetailSheet = ({ date, entries, foods, goals, onClose }: Props) => {
   };
 
   const handleClose = () => {
+    if (inert) return;
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={fmtDate(date)}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      role={inert ? undefined : "dialog"}
+      aria-modal={inert ? undefined : true}
+      aria-hidden={inert || undefined}
+      aria-label={inert ? undefined : fmtDate(date)}
+      {...(inert ? ({ inert: "" } as { inert: string }) : {})}
+    >
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" aria-label={en.dayDetail.closeAria} onClick={handleClose} />
       <div className="relative bg-background rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-center pt-3 pb-2">
@@ -74,6 +84,7 @@ const DayDetailSheet = ({ date, entries, foods, goals, onClose }: Props) => {
               expandedIndex={expandedIndex}
               idPrefix="day-meal"
               onToggle={handleToggle}
+              onMove={onMove}
             />
           )}
         </div>

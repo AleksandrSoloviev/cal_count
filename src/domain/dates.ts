@@ -52,6 +52,22 @@ export const greetingForHour = (hour: number): "morning" | "afternoon" | "evenin
   return "evening";
 };
 
+/** Same local clock time as `ts`, on `targetDate` (YYYY-MM-DD). */
+export const shiftTsToDate = (ts: number, targetDate: string): number => {
+  const src = new Date(ts);
+  const [year, month, day] = targetDate.split("-").map(Number);
+  const next = new Date(
+    year,
+    month - 1,
+    day,
+    src.getHours(),
+    src.getMinutes(),
+    src.getSeconds(),
+    src.getMilliseconds(),
+  );
+  return next.getTime();
+};
+
 export const msUntilNextLocalMidnight = (now = new Date()): number => {
   const midnight = new Date(now);
   midnight.setHours(24, 0, 0, 0);

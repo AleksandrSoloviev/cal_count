@@ -8,6 +8,8 @@ import en from "../../i18n/en";
 type Props = {
   food: Food;
   prefill?: Entry | null;
+  queueActive?: boolean;
+  queueRemaining?: number;
   onConfirm: (food: Food, qty?: number, compQty?: Record<string, number>) => void;
   onClose: () => void;
 };
@@ -19,7 +21,14 @@ const methodUnit = (m: Method) => {
   return "";
 };
 
-const LogFoodSheet = ({ food, prefill, onConfirm, onClose }: Props) => {
+const LogFoodSheet = ({
+  food,
+  prefill,
+  queueActive = false,
+  queueRemaining = 0,
+  onConfirm,
+  onClose,
+}: Props) => {
   const [qty, setQty] = useState(prefill?.qty !== undefined ? String(prefill.qty) : "");
   const [compQty, setCompQty] = useState<Record<string, string>>(() => {
     if (food.method === "custom" && food.components) {
@@ -96,6 +105,11 @@ const LogFoodSheet = ({ food, prefill, onConfirm, onClose }: Props) => {
             <div>
               <h2 className="text-lg font-semibold text-foreground">{food.name}</h2>
               <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
+              {queueActive && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {queueRemaining > 0 ? en.log.queueMore(queueRemaining) : en.log.queueLast}
+                </p>
+              )}
             </div>
             <button type="button" onClick={onClose} aria-label={en.log.closeAria} className="p-2 rounded-xl min-h-11 min-w-11 text-muted-foreground">
               <X size={18} aria-hidden />

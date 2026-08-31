@@ -1,7 +1,7 @@
 {
-  "name": "007-fridge-popularity",
-  "path": "specs/007-fridge-popularity/",
+  "name": "008-meal-move-multiselect",
+  "path": "specs/008-meal-move-multiselect/",
   "mode": "full",
-  "description": "Сортировать продукты в холодильнике по популярности (частота использования)",
-  "created": "2026-08-20T14:07:47Z"
+  "description": "Добавить возможность Переносить приемы пищи на какую либо дату. Добавить возможность выбирать несколько продуктов из холодильника за раз.",
+  "created": "2026-08-31T09:25:50Z"
 }

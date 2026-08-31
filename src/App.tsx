@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import BottomNav from "./components/BottomNav";
 import AddFoodSheet from "./components/sheets/AddFoodSheet";
 import DayDetailSheet from "./components/sheets/DayDetailSheet";
 import LogFoodSheet from "./components/sheets/LogFoodSheet";
+import MoveMealSheet from "./components/sheets/MoveMealSheet";
 import FridgeScreen from "./screens/FridgeScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import OnboardingScreen from "./screens/OnboardingScreen";
@@ -13,13 +14,33 @@ import { useAppStore } from "./state/useAppStore";
 
 const App = () => {
   const store = useAppStore();
+  const moveReturnFocusIdRef = useRef<string | null>(null);
 
   const todayEntries = useMemo(
     () => store.entries.filter((e) => e.date === store.today).sort((a, b) => a.ts - b.ts),
     [store.entries, store.today],
   );
 
+  const handleOpenMoveMeal = (entryIds: string[], sourceDate: string) => {
+    const active = document.activeElement;
+    moveReturnFocusIdRef.current =
+      active instanceof HTMLElement && active.id ? active.id : null;
+    store.openMoveMeal(entryIds, sourceDate);
+  };
+
   const editFoodModal = store.modal?.type === "edit-food" ? store.modal : null;
+  const moveMealModal = store.modal?.type === "move-meal" ? store.modal : null;
+  const dayDetailDate =
+    store.modal?.type === "day-detail" ? store.modal.date : store.heldDayDetailDate;
+
+  useEffect(() => {
+    if (moveMealModal) return;
+    const id = moveReturnFocusIdRef.current;
+    if (!id) return;
+    moveReturnFocusIdRef.current = null;
+    const node = document.getElementById(id);
+    if (node instanceof HTMLElement) node.focus();
+  }, [moveMealModal]);
 
   if (!store.goals) {
     return <OnboardingScreen onComplete={store.setGoals} />;
@@ -42,13 +63,21 @@ const App = () => {
             onAddFood={() => store.setTab("fridge")}
             onEditEntry={store.startEditEntry}
             onDeleteEntry={store.deleteEntry}
+            onMoveMeal={(meal) =>
+              handleOpenMoveMeal(
+                meal.entries.map((e) => e.id),
+                store.today,
+              )
+            }
             onOpenSettings={store.openSettings}
           />
         )}
         {store.tab === "fridge" && (
           <FridgeScreen
             foods={store.foods}
+            fridgeResetSeq={store.fridgeResetSeq}
             onSelectFood={(food) => store.openLogFood(food)}
+            onStartLogQueue={store.startLogQueue}
             onAddNew={() => store.openModal({ type: "add-food" })}
             onEdit={(food) => store.openModal({ type: "edit-food", food })}
             onDuplicate={(food) =>
@@ -85,8 +114,11 @@ const App = () => {
 
       {store.modal?.type === "log-food" && (
         <LogFoodSheet
+          key={`${store.modal.food.id}-${store.logQueue.length}-${store.logQueueActive}`}
           food={store.modal.food}
           prefill={store.editingEntry}
+          queueActive={store.logQueueActive}
+          queueRemaining={store.logQueue.length}
           onConfirm={store.logOrUpdateEntry}
           onClose={store.closeModal}
         />
@@ -107,14 +139,28 @@ const App = () => {
           onClose={store.closeModal}
         />
       )}
-      {store.modal?.type === "day-detail" && (
+      {dayDetailDate && (
         <DayDetailSheet
-          date={store.modal.date}
+          date={dayDetailDate}
           entries={store.entries
-            .filter((e) => e.date === (store.modal && store.modal.type === "day-detail" ? store.modal.date : ""))
+            .filter((e) => e.date === dayDetailDate)
             .sort((a, b) => a.ts - b.ts)}
           foods={store.foods}
           goals={store.goals}
+          inert={Boolean(moveMealModal)}
+          onMove={(meal) =>
+            handleOpenMoveMeal(
+              meal.entries.map((e) => e.id),
+              dayDetailDate,
+            )
+          }
+          onClose={store.closeModal}
+        />
+      )}
+      {moveMealModal && (
+        <MoveMealSheet
+          sourceDate={moveMealModal.sourceDate}
+          onConfirm={(targetDate) => store.moveMeal(moveMealModal.entryIds, targetDate)}
           onClose={store.closeModal}
         />
       )}

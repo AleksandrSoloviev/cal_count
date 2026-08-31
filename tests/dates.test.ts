@@ -3,6 +3,7 @@ import {
   dateOffset,
   fmtWeekRange,
   greetingForHour,
+  shiftTsToDate,
   todayStr,
   weekBoundsSatFri,
 } from "../src/domain/dates";
@@ -53,5 +54,18 @@ describe("dates", () => {
   it("fmtWeekRange uses short weekday + month + day on both ends", () => {
     const label = fmtWeekRange("2026-08-15", "2026-08-21");
     expect(label).toMatch(/^Sat Aug 15 – Fri Aug 21$/);
+  });
+
+  it("shiftTsToDate keeps local clock time on the target date", () => {
+    const ts = new Date(2026, 7, 13, 18, 30, 15, 250).getTime();
+    const shifted = shiftTsToDate(ts, "2026-08-10");
+    const d = new Date(shifted);
+    expect(d.getFullYear()).toBe(2026);
+    expect(d.getMonth()).toBe(7);
+    expect(d.getDate()).toBe(10);
+    expect(d.getHours()).toBe(18);
+    expect(d.getMinutes()).toBe(30);
+    expect(d.getSeconds()).toBe(15);
+    expect(d.getMilliseconds()).toBe(250);
   });
 });

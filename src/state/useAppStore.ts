@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
-import { groupEntriesIntoMeals } from "../domain/meals";
+import { groupEntriesIntoMeals, moveEntriesToDate } from "../domain/meals";
 import { calcNutrition } from "../domain/nutrition";
 import type { CardMode, Entry, EntryFocus, Food, Goals, Modal, Tab } from "../domain/types";
 import { sortFoodsByPopularity } from "../domain/foodPopularity";
@@ -26,6 +26,10 @@ export const useAppStore = () => {
   const [entryFocus, setEntryFocus] = useState<EntryFocus>({ kind: "latest" });
   const [focusSeq, setFocusSeq] = useState(0);
   const [cardMode, setCardMode] = useState<CardMode>("day");
+  const [logQueue, setLogQueue] = useState<Food[]>([]);
+  const [logQueueActive, setLogQueueActive] = useState(false);
+  const [fridgeResetSeq, setFridgeResetSeq] = useState(0);
+  const [heldDayDetailDate, setHeldDayDetailDate] = useState<string | null>(null);
 
   const persist = useCallback(
     (next: { goals?: Goals | null; foods?: Food[]; entries?: Entry[] }) => {
@@ -85,12 +89,41 @@ export const useAppStore = () => {
 
   const openLogFood = (food: Food, entry: Entry | null = null) => {
     setEditingEntry(entry);
+    setLogQueue([]);
+    setLogQueueActive(false);
     setModal({ type: "log-food", food });
   };
 
+  const openMoveMeal = (entryIds: string[], sourceDate: string) => {
+    if (modal?.type === "day-detail") {
+      setHeldDayDetailDate(modal.date);
+    }
+    setEditingEntry(null);
+    setModal({ type: "move-meal", entryIds, sourceDate });
+  };
+
   const closeModal = () => {
+    if (modal?.type === "move-meal" && heldDayDetailDate) {
+      setModal({ type: "day-detail", date: heldDayDetailDate });
+      setHeldDayDetailDate(null);
+      setEditingEntry(null);
+      return;
+    }
+    const queueWasActive = logQueueActive || logQueue.length > 0;
     setModal(null);
     setEditingEntry(null);
+    setLogQueue([]);
+    setLogQueueActive(false);
+    setHeldDayDetailDate(null);
+    if (queueWasActive) setFridgeResetSeq((n) => n + 1);
+  };
+
+  const startLogQueue = (queuedFoods: Food[]) => {
+    if (queuedFoods.length === 0) return;
+    setEditingEntry(null);
+    setLogQueueActive(true);
+    setModal({ type: "log-food", food: queuedFoods[0] });
+    setLogQueue(queuedFoods.slice(1));
   };
 
   const logOrUpdateEntry = (food: Food, qty?: number, compQty?: Record<string, number>) => {
@@ -126,8 +159,48 @@ export const useAppStore = () => {
     persist({ entries: nextEntries, foods: nextFoods });
     setEntryFocus({ kind: "entry", id: entry.id });
     setFocusSeq((n) => n + 1);
-    closeModal();
+
+    if (editingEntry) {
+      setModal(null);
+      setEditingEntry(null);
+      setLogQueue([]);
+      setLogQueueActive(false);
+      setTab("home");
+      return;
+    }
+
+    if (logQueue.length > 0) {
+      setModal({ type: "log-food", food: logQueue[0] });
+      setLogQueue(logQueue.slice(1));
+      return;
+    }
+
+    const wasQueue = logQueueActive;
+    setModal(null);
+    setEditingEntry(null);
+    setLogQueue([]);
+    setLogQueueActive(false);
+    if (wasQueue) setFridgeResetSeq((n) => n + 1);
     setTab("home");
+  };
+
+  const moveMeal = (entryIds: string[], targetDate: string) => {
+    const { entries: next, changed } = moveEntriesToDate(entries, entryIds, targetDate);
+    if (!changed) {
+      closeModal();
+      return;
+    }
+    const sourceDate = entries.find((e) => entryIds.includes(e.id))?.date;
+    const remainingIds = sourceDate
+      ? next.filter((e) => e.date === sourceDate).map((e) => e.id)
+      : [];
+    setEntries(next);
+    persist({ entries: next });
+    setEntryFocus(
+      remainingIds.length > 0 ? { kind: "remaining", ids: remainingIds } : { kind: "latest" },
+    );
+    setFocusSeq((n) => n + 1);
+    closeModal();
   };
 
   const deleteEntry = (id: string) => {
@@ -189,6 +262,7 @@ export const useAppStore = () => {
     modal,
     openModal,
     openLogFood,
+    openMoveMeal,
     closeModal,
     settingsOpen,
     openSettings,
@@ -199,7 +273,13 @@ export const useAppStore = () => {
     focusSeq,
     cardMode,
     setCardMode,
+    logQueue,
+    logQueueActive,
+    fridgeResetSeq,
+    heldDayDetailDate,
+    startLogQueue,
     logOrUpdateEntry,
+    moveMeal,
     deleteEntry,
     startEditEntry,
     addFood,

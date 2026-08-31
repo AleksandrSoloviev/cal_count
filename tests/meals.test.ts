@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { MEAL_GAP_MS, groupEntriesIntoMeals, resolveExpandedMealIndex } from "../src/domain/meals";
+import {
+  MEAL_GAP_MS,
+  groupEntriesIntoMeals,
+  moveEntriesToDate,
+  resolveExpandedMealIndex,
+} from "../src/domain/meals";
 import type { Entry } from "../src/domain/types";
 
 const T0 = Date.parse("2026-08-13T12:00:00");
@@ -97,5 +102,45 @@ describe("resolveExpandedMealIndex", () => {
   it("uses the first remaining id that still exists", () => {
     expect(resolveExpandedMealIndex(meals, { kind: "remaining", ids: ["gone", "a"] })).toBe(0);
     expect(resolveExpandedMealIndex(meals, { kind: "remaining", ids: ["gone"] })).toBe(1);
+  });
+});
+
+describe("moveEntriesToDate", () => {
+  it("is a no-op for empty ids", () => {
+    const entries = [makeEntry("a", T0)];
+    const result = moveEntriesToDate(entries, [], "2026-08-10");
+    expect(result.changed).toBe(false);
+    expect(result.entries).toBe(entries);
+  });
+
+  it("is a no-op when target date matches current date", () => {
+    const entries = [makeEntry("a", T0), makeEntry("b", T0 + 1000)];
+    const result = moveEntriesToDate(entries, ["a", "b"], "2026-08-13");
+    expect(result.changed).toBe(false);
+    expect(result.entries).toBe(entries);
+  });
+
+  it("leaves unmatched entries untouched and preserves ids and nutrition", () => {
+    const extra: Entry = {
+      ...makeEntry("keep", T0),
+      date: "2026-08-13",
+      nutrition: { calories: 99, protein: 9, fat: 8, carbs: 7 },
+    };
+    const entries = [makeEntry("a", T0), extra];
+    const result = moveEntriesToDate(entries, ["a"], "2026-08-10");
+    expect(result.changed).toBe(true);
+    expect(result.entries).not.toBe(entries);
+    const moved = result.entries.find((e) => e.id === "a");
+    const kept = result.entries.find((e) => e.id === "keep");
+    expect(moved?.date).toBe("2026-08-10");
+    expect(moved?.id).toBe("a");
+    expect(moved?.nutrition).toEqual({ calories: 10, protein: 1, fat: 2, carbs: 3 });
+    expect(moved?.qty).toBe(100);
+    expect(kept).toEqual(extra);
+    const shifted = new Date(moved!.ts);
+    expect(shifted.getFullYear()).toBe(2026);
+    expect(shifted.getMonth()).toBe(7);
+    expect(shifted.getDate()).toBe(10);
+    expect(shifted.getHours()).toBe(new Date(T0).getHours());
   });
 });

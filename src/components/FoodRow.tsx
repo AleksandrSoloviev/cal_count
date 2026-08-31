@@ -5,7 +5,10 @@ import en from "../i18n/en";
 
 type Props = {
   food: Food;
+  selecting?: boolean;
+  selected?: boolean;
   onSelect: () => void;
+  onToggleSelect?: () => void;
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
@@ -35,13 +38,44 @@ const nutritionSummary = (f: Food): string => {
   return "";
 };
 
-const FoodRow = ({ food, onSelect, onEdit, onDuplicate, onDelete }: Props) => {
+const FoodRow = ({
+  food,
+  selecting = false,
+  selected = false,
+  onSelect,
+  onToggleSelect,
+  onEdit,
+  onDuplicate,
+  onDelete,
+}: Props) => {
   const [menu, setMenu] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
+  const handleRowClick = () => {
+    if (selecting) {
+      onToggleSelect?.();
+      return;
+    }
+    onSelect();
+  };
+
   return (
     <div className="relative flex items-center gap-3 py-3.5 border-b border-border last:border-0">
-      <button type="button" onClick={onSelect} className="flex-1 flex items-center gap-3 min-w-0 text-left min-h-11">
+      <button
+        type="button"
+        onClick={handleRowClick}
+        aria-checked={selecting ? selected : undefined}
+        role={selecting ? "checkbox" : undefined}
+        className="flex-1 flex items-center gap-3 min-w-0 text-left min-h-11"
+      >
+        {selecting && (
+          <span
+            aria-hidden
+            className={`flex-shrink-0 w-5 h-5 rounded-full border ${
+              selected ? "bg-primary border-primary" : "border-border bg-card"
+            }`}
+          />
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-foreground truncate">{food.name}</span>

@@ -10,6 +10,7 @@ type Props = {
   onToggle: (index: number) => void;
   onEdit?: (entry: Entry) => void;
   onDelete?: (id: string) => void;
+  onMove?: (meal: Meal) => void;
 };
 
 const MealList = ({
@@ -20,6 +21,7 @@ const MealList = ({
   onToggle,
   onEdit,
   onDelete,
+  onMove,
 }: Props) => {
   const readOnly = !onEdit && !onDelete;
 
@@ -39,6 +41,7 @@ const MealList = ({
             expanded={expanded}
             panelId={panelId}
             onToggle={() => handleToggle(index)}
+            onMove={onMove ? () => onMove(meal) : undefined}
           >
             {meal.entries.map((entry) => (
               <EntryRow

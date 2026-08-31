@@ -4,7 +4,7 @@ import { fmtWeekRange, greetingForHour, weekBoundsSatFri } from "../domain/dates
 import { groupEntriesIntoMeals, resolveExpandedMealIndex } from "../domain/meals";
 import { NUTRIENT_META, sumNutrition } from "../domain/nutrition";
 import { entriesInWeek, remainingNutrient, weeklyGoals } from "../domain/week";
-import type { CardMode, Entry, EntryFocus, Food, Goals } from "../domain/types";
+import type { CardMode, Entry, EntryFocus, Food, Goals, Meal } from "../domain/types";
 import en from "../i18n/en";
 import MealList from "../components/MealList";
 import NutrientBar from "../components/NutrientBar";
@@ -22,6 +22,7 @@ type Props = {
   onAddFood: () => void;
   onEditEntry: (e: Entry) => void;
   onDeleteEntry: (id: string) => void;
+  onMoveMeal: (meal: Meal) => void;
   onOpenSettings: () => void;
 };
 
@@ -38,6 +39,7 @@ const TodayScreen = ({
   onAddFood,
   onEditEntry,
   onDeleteEntry,
+  onMoveMeal,
   onOpenSettings,
 }: Props) => {
   const now = new Date();
@@ -218,6 +220,7 @@ const TodayScreen = ({
           onToggle={handleToggle}
           onEdit={onEditEntry}
           onDelete={onDeleteEntry}
+          onMove={onMoveMeal}
         />
       )}
     </div>

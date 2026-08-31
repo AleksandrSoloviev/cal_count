@@ -82,6 +82,9 @@ const en = {
     duplicate: "Duplicate",
     delete: "Delete",
     menuAria: "Food actions",
+    select: "Select",
+    doneSelect: "Done",
+    logSelected: (n: number) => `Log ${n}`,
   },
   history: {
     eyebrow: "Log",
@@ -120,6 +123,8 @@ const en = {
     hintPieces: "Enter number of pieces",
     hintCustom: "Enter quantity for each component",
     per100: (u: string) => `Nutrition values are per 100 ${u}`,
+    queueMore: (n: number) => `${n} more after this`,
+    queueLast: "Last in this selection",
   },
   addFood: {
     title: "Add food",
@@ -152,6 +157,15 @@ const en = {
     title: (n: number) => `Meal ${n}`,
     expandAria: (n: number) => `Expand meal ${n}`,
     collapseAria: (n: number) => `Collapse meal ${n}`,
+    move: "Move",
+    moveAria: (n: number) => `Move meal ${n}`,
+  },
+  moveMeal: {
+    title: "Move meal",
+    dateLabel: "Date",
+    confirm: "Move",
+    cancel: "Cancel",
+    closeAria: "Close",
   },
 } as const;
 
