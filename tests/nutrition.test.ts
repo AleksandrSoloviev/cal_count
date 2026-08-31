@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { calcNutrition, displayVal, r1, sumNutrition } from "../src/domain/nutrition";
+import {
+  calcNutrition,
+  calorieEstimateKcal,
+  displayVal,
+  estimateCaloriesFromMacros,
+  r1,
+  sumNutrition,
+} from "../src/domain/nutrition";
 import type { Food } from "../src/domain/types";
 
 describe("nutrition", () => {
@@ -57,5 +64,24 @@ describe("nutrition", () => {
   it("displays kcal rounded", () => {
     expect(displayVal(12.6, "kcal")).toBe("13");
     expect(displayVal(12.0, "g")).toBe("12");
+  });
+});
+
+describe("calorie estimate", () => {
+  it("uses Atwater 4/9/4", () => {
+    expect(estimateCaloriesFromMacros(10, 10, 100)).toBe(530);
+  });
+
+  it("shows the hint when calories disagree by 10 or more", () => {
+    expect(calorieEstimateKcal(100, 10, 10, 100)).toBe(530);
+  });
+
+  it("hides the hint when the gap is under 10 kcal", () => {
+    expect(calorieEstimateKcal(156, 31, 3.6, 0)).toBeNull();
+    expect(calorieEstimateKcal(165, 31, 3.6, 0)).toBeNull();
+  });
+
+  it("hides the hint when macros are all zero", () => {
+    expect(calorieEstimateKcal(100, 0, 0, 0)).toBeNull();
   });
 });

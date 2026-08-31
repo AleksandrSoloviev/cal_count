@@ -136,6 +136,7 @@ const en = {
     addComponent: "Add component",
     nutrition: "Nutrition",
     closeAria: "Close",
+    estKcal: (n: number) => `est~${n} kcal`,
   },
   method: {
     grams: "Grams (per 100 g)",

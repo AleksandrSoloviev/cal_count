@@ -16,6 +16,33 @@ export const NUTRIENT_META = [
 
 export const OVERFLOW_COLOR = "#ef4444";
 
+const finiteOrZero = (n: number): number => (Number.isFinite(n) ? n : 0);
+
+/** Atwater kcal from macros (kcal/g: protein 4, fat 9, carbs 4). */
+export const estimateCaloriesFromMacros = (protein: number, fat: number, carbs: number): number => {
+  const p = finiteOrZero(protein);
+  const f = finiteOrZero(fat);
+  const c = finiteOrZero(carbs);
+  return Math.round(4 * p + 9 * f + 4 * c);
+};
+
+/** Display-only estimate, or null when the hint should stay hidden. */
+export const calorieEstimateKcal = (
+  typedCalories: number,
+  protein: number,
+  fat: number,
+  carbs: number,
+): number | null => {
+  const p = finiteOrZero(protein);
+  const f = finiteOrZero(fat);
+  const c = finiteOrZero(carbs);
+  if (p <= 0 && f <= 0 && c <= 0) return null;
+  const typed = finiteOrZero(typedCalories);
+  const estimate = estimateCaloriesFromMacros(p, f, c);
+  if (Math.abs(typed - estimate) < 10) return null;
+  return estimate;
+};
+
 export const r1 = (n: number): number => Math.round(n * 10) / 10;
 
 export const displayVal = (n: number, unit: string): string => {

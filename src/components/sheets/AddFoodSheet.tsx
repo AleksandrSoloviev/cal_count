@@ -73,7 +73,7 @@ const AddFoodSheet = ({ mode = "add", prefill, onConfirm, onClose }: Props) => {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-xl border border-border bg-card px-4 py-3.5 outline-none focus:border-foreground/40"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3.5 text-base outline-none focus:border-foreground/40 min-h-11"
             />
             {errors.name && <p className="text-red-500 text-xs mt-1.5">{errors.name}</p>}
           </div>
@@ -85,7 +85,7 @@ const AddFoodSheet = ({ mode = "add", prefill, onConfirm, onClose }: Props) => {
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value as Method)}
-              className="w-full rounded-xl border border-border bg-card px-4 py-3.5"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3.5 text-base min-h-11"
             >
               <option value="grams">{en.method.grams}</option>
               <option value="milliliters">{en.method.milliliters}</option>
@@ -108,7 +108,7 @@ const AddFoodSheet = ({ mode = "add", prefill, onConfirm, onClose }: Props) => {
                       )
                     }
                     placeholder="Component name"
-                    className="w-full rounded-lg border border-border bg-card px-3 py-2"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-base min-h-11"
                   />
                   {errors[`comp-${i}`] && (
                     <p className="text-red-500 text-xs">{errors[`comp-${i}`]}</p>
