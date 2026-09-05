@@ -94,6 +94,10 @@ const App = () => {
             allEntries={store.entries}
             goals={store.goals}
             today={store.today}
+            historyPeriod={store.historyPeriod}
+            openWeekPeriod={store.openWeekPeriod}
+            onHistoryPeriodChange={store.setHistoryPeriod}
+            onOpenWeekPeriodChange={store.setOpenWeekPeriod}
             onSelectDay={(date) => store.openModal({ type: "day-detail", date })}
           />
         )}

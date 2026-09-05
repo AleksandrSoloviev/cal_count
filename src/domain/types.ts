@@ -63,6 +63,12 @@ export type EntryFocus =
 /** Session UI for Today progress card. Not persisted. */
 export type CardMode = "day" | "week";
 
+/** Session UI for History Daily / Weekly. Not persisted. Independent of CardMode. */
+export type HistoryPeriod = "daily" | "weekly";
+
+/** Derived calorie strip on History compare cards. Not persisted. */
+export type CalorieCardStatus = "red" | "yellow" | "green";
+
 /** Derived Saturday–Friday window. Not persisted. */
 export type WeekWindow = {
   start: string;

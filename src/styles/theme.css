@@ -13,6 +13,7 @@
   --nutrient-fat: #d97706;
   --nutrient-carbs: #7c3aed;
   --overflow: #ef4444;
+  --status-under: #eab308;
 }
 
 @theme inline {

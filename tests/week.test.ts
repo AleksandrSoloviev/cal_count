@@ -3,6 +3,7 @@ import type { Entry, Goals, Nutrient } from "../src/domain/types";
 import {
   entriesInWeek,
   filterEntriesByDateRange,
+  listCompletedWeekWindows,
   remainingNutrient,
   weeklyGoals,
 } from "../src/domain/week";
@@ -79,6 +80,52 @@ describe("week", () => {
     expect(entriesInWeek([...weekEntries, entry("prev", "2026-08-14", 999)], monday).map((e) => e.id)).toEqual([
       "sat",
       "sun",
+    ]);
+  });
+});
+
+describe("listCompletedWeekWindows", () => {
+  const wednesday = "2026-08-19";
+
+  it("lists nothing when the only entries are today", () => {
+    expect(listCompletedWeekWindows([entry("t", "2026-08-19", 100)], wednesday)).toEqual([]);
+  });
+
+  it("hides the in-progress week even with a past weekday logged", () => {
+    const list = [entry("mon", "2026-08-17", 100), entry("wed", "2026-08-19", 100)];
+    expect(listCompletedWeekWindows(list, wednesday)).toEqual([]);
+  });
+
+  it("lists a completed previous week", () => {
+    expect(listCompletedWeekWindows([entry("thu", "2026-08-13", 100)], wednesday)).toEqual([
+      { start: "2026-08-08", end: "2026-08-14" },
+    ]);
+  });
+
+  it("still hides the current week when a previous week is also present", () => {
+    const list = [entry("thu", "2026-08-13", 100), entry("mon", "2026-08-17", 100)];
+    expect(listCompletedWeekWindows(list, wednesday)).toEqual([
+      { start: "2026-08-08", end: "2026-08-14" },
+    ]);
+  });
+
+  it("reveals the week that just ended after Friday→Saturday rollover", () => {
+    const saturday = "2026-08-22";
+    expect(listCompletedWeekWindows([entry("mon", "2026-08-17", 100)], saturday)).toEqual([
+      { start: "2026-08-15", end: "2026-08-21" },
+    ]);
+  });
+
+  it("hides the in-progress week on Friday (end === today)", () => {
+    const friday = "2026-08-21";
+    expect(listCompletedWeekWindows([entry("mon", "2026-08-17", 100)], friday)).toEqual([]);
+  });
+
+  it("sorts newest completed week first", () => {
+    const list = [entry("old", "2026-08-06", 50), entry("prev", "2026-08-13", 50)];
+    expect(listCompletedWeekWindows(list, wednesday).map((w) => w.start)).toEqual([
+      "2026-08-08",
+      "2026-08-01",
     ]);
   });
 });

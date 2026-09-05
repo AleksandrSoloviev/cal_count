@@ -1,7 +1,7 @@
 {
-  "name": "009-kcal-estimate-zoom",
-  "path": "specs/009-kcal-estimate-zoom/",
+  "name": "010-history-week",
+  "path": "specs/010-history-week/",
   "mode": "full",
-  "description": "When adding or editing a fridge food, show an Atwater calorie estimate under calories if P/F/C disagree. Stop iOS page zoom on input focus.",
-  "created": "2026-08-31T10:57:20Z"
+  "description": "По скольку у нас недавно появилась фича \"недельный план\", я хочу во вкладке Хистори видеть историю в том числе по неделям. Давай добавим похожий переключатель дэй/вик, как во вкладке тудей",
+  "created": "2026-09-05T06:12:53Z"
 }

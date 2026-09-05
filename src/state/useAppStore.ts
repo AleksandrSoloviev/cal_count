@@ -3,7 +3,17 @@ import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
 import { groupEntriesIntoMeals, moveEntriesToDate } from "../domain/meals";
 import { calcNutrition } from "../domain/nutrition";
-import type { CardMode, Entry, EntryFocus, Food, Goals, Modal, Tab } from "../domain/types";
+import type {
+  CardMode,
+  Entry,
+  EntryFocus,
+  Food,
+  Goals,
+  HistoryPeriod,
+  Modal,
+  Tab,
+  WeekWindow,
+} from "../domain/types";
 import { sortFoodsByPopularity } from "../domain/foodPopularity";
 import { applyFoodUpdate, type FoodPatch } from "../domain/updateFood";
 import { loadDocument, saveDocument } from "../storage/localStore";
@@ -26,6 +36,8 @@ export const useAppStore = () => {
   const [entryFocus, setEntryFocus] = useState<EntryFocus>({ kind: "latest" });
   const [focusSeq, setFocusSeq] = useState(0);
   const [cardMode, setCardMode] = useState<CardMode>("day");
+  const [historyPeriod, setHistoryPeriodState] = useState<HistoryPeriod>("daily");
+  const [openWeekPeriod, setOpenWeekPeriod] = useState<WeekWindow | null>(null);
   const [logQueue, setLogQueue] = useState<Food[]>([]);
   const [logQueueActive, setLogQueueActive] = useState(false);
   const [fridgeResetSeq, setFridgeResetSeq] = useState(0);
@@ -77,6 +89,11 @@ export const useAppStore = () => {
     setGoalsState(g);
     persist({ goals: g });
     setSettingsOpen(false);
+  };
+
+  const setHistoryPeriod = (period: HistoryPeriod) => {
+    setHistoryPeriodState(period);
+    if (period === "daily") setOpenWeekPeriod(null);
   };
 
   const openSettings = () => setSettingsOpen(true);
@@ -273,6 +290,10 @@ export const useAppStore = () => {
     focusSeq,
     cardMode,
     setCardMode,
+    historyPeriod,
+    setHistoryPeriod,
+    openWeekPeriod,
+    setOpenWeekPeriod,
     logQueue,
     logQueueActive,
     fridgeResetSeq,
