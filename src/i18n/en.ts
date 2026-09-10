@@ -124,8 +124,10 @@ const en = {
   settings: {
     title: "Settings",
     goals: "Daily goals",
-    future: "Future preferences",
-    futureHint: "More options will appear here later.",
+    data: "Data",
+    dump: "Download dump",
+    dumpHint: "Saves goals, foods, and all logged entries as a JSON file on this device.",
+    dumpAria: "Download data dump",
     save: "Save changes",
     cancel: "Cancel",
     backAria: "Back",

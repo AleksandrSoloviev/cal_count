@@ -26,3 +26,4 @@ Capture product/tech ideas here. **Do not implement** until the owner explicitly
 | IDEA-001 | 2026-08-12 | inbox | После обкатки веб-PWA перенести функционал на React Native | Уже в roadmap/ADR; держать как напоминание до старта RN-фазы |
 | IDEA-002 | 2026-08-12 | inbox | Настраиваемые шкалы нутриентов на Today: добавлять свои (напр. вода — план и потребление) и/или скрывать дефолтные (kcal/protein/fat/carbs) | Касается NutrientBar / goals / возможно Settings |
 | IDEA-003 | 2026-08-12 | inbox | Постоянные / любимые блюда: быстро логировать одни и те же приёмы пищи без повторного ввода количества каждый раз | Частично пересекается с Fridge + lastUsed; возможно «шаблоны приёма» или one-tap favorites |
+| IDEA-004 | 2026-09-10 | done | Физический дамп всех локальных данных (goals, foods, entries); опционально раз в неделю в начале новой недели | Settings → Download dump (`src/storage/dump.ts`, `saveDump.ts`). Недельный автодамп не делали. |

@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Download } from "lucide-react";
 import type { Goals } from "../domain/types";
 import { validateGoals } from "../domain/validation";
 import en from "../i18n/en";
 import GoalInput from "../components/GoalInput";
+import { dumpFilename, serializeDump } from "../storage/dump";
+import { loadDocument } from "../storage/localStore";
+import { saveDumpToDevice } from "../storage/saveDump";
 
 type Props = {
   goals: Goals;
@@ -19,8 +22,20 @@ const SettingsScreen = ({ goals, onSave, onCancel }: Props) => {
     carbs: String(goals.carbs),
   });
   const [errors, setErrors] = useState<Partial<Record<keyof Goals, string>>>({});
+  const [dumpBusy, setDumpBusy] = useState(false);
 
   const set = (k: keyof typeof vals) => (v: string) => setVals((prev) => ({ ...prev, [k]: v }));
+
+  const handleDownloadDump = async () => {
+    if (dumpBusy) return;
+    setDumpBusy(true);
+    try {
+      const json = serializeDump(loadDocument());
+      await saveDumpToDevice(json, dumpFilename());
+    } finally {
+      setDumpBusy(false);
+    }
+  };
 
   const handleSave = () => {
     const result = validateGoals(vals);
@@ -58,11 +73,21 @@ const SettingsScreen = ({ goals, onSave, onCancel }: Props) => {
           </div>
         </section>
 
-        <section className="mb-10 rounded-2xl border border-dashed border-border p-5">
+        <section className="mb-10">
           <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-            {en.settings.future}
+            {en.settings.data}
           </h2>
-          <p className="text-sm text-muted-foreground">{en.settings.futureHint}</p>
+          <p className="text-sm text-muted-foreground mb-4">{en.settings.dumpHint}</p>
+          <button
+            type="button"
+            onClick={handleDownloadDump}
+            disabled={dumpBusy}
+            aria-label={en.settings.dumpAria}
+            className="w-full rounded-xl border border-border py-4 text-sm font-semibold min-h-11 flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <Download size={18} aria-hidden />
+            {en.settings.dump}
+          </button>
         </section>
 
         <div className="flex gap-3">
