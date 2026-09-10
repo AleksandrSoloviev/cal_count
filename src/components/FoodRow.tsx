@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Copy, Pencil, Trash2 } from "lucide-react";
 import type { Food } from "../domain/types";
 import en from "../i18n/en";
@@ -50,6 +50,21 @@ const FoodRow = ({
 }: Props) => {
   const [menu, setMenu] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const menuRootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menu) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      const root = menuRootRef.current;
+      if (!root) return;
+      if (event.target instanceof Node && root.contains(event.target)) return;
+      setMenu(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    return () => document.removeEventListener("pointerdown", handlePointerDown, true);
+  }, [menu]);
+
+  const handleMenuToggle = () => setMenu((open) => !open);
 
   const handleRowClick = () => {
     if (selecting) {
@@ -110,11 +125,13 @@ const FoodRow = ({
           </button>
         </div>
       ) : (
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div ref={menuRootRef} className="flex items-center gap-1 flex-shrink-0">
           <button
             type="button"
-            onClick={() => setMenu(!menu)}
+            onClick={handleMenuToggle}
             aria-label={en.fridge.menuAria}
+            aria-expanded={menu}
+            aria-haspopup="menu"
             className="p-2.5 rounded-lg text-muted-foreground min-h-11 min-w-11"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -124,7 +141,10 @@ const FoodRow = ({
             </svg>
           </button>
           {menu && (
-            <div className="absolute right-4 top-12 bg-card border border-border rounded-xl shadow-lg z-10 py-1 min-w-[140px]">
+            <div
+              role="menu"
+              className="absolute right-4 top-12 bg-card border border-border rounded-xl shadow-lg z-10 py-1 min-w-[140px]"
+            >
               <button
                 type="button"
                 onClick={() => {
