@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { Plus, Refrigerator as FridgeIcon } from "lucide-react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { Plus, Refrigerator as FridgeIcon, Search } from "lucide-react";
 import type { Food } from "../domain/types";
+import { filterFoodsByName } from "../domain/foodNameFilter";
 import en from "../i18n/en";
 import FoodRow from "../components/FoodRow";
 
@@ -27,11 +28,19 @@ const FridgeScreen = ({
 }: Props) => {
   const [selecting, setSelecting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     setSelecting(false);
     setSelectedIds([]);
   }, [fridgeResetSeq]);
+
+  const visibleFoods = useMemo(() => filterFoodsByName(foods, query), [foods, query]);
+  const hasLibrary = foods.length > 0;
+
+  const handleQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
+  };
 
   const handleEnterSelect = () => {
     setSelecting(true);
@@ -65,7 +74,7 @@ const FridgeScreen = ({
 
   return (
     <div className="px-4 pt-12 pb-6 max-w-md mx-auto relative">
-      <div className="flex items-center justify-between mb-8 gap-2">
+      <div className={`flex items-center justify-between gap-2 ${hasLibrary ? "mb-4" : "mb-8"}`}>
         <div className="min-w-0">
           <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-0.5">
             {en.fridge.eyebrow}
@@ -73,7 +82,7 @@ const FridgeScreen = ({
           <h1 className="text-xl font-semibold text-foreground tracking-tight">{en.fridge.title}</h1>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {foods.length > 0 && (
+          {hasLibrary && (
             <button
               type="button"
               onClick={selecting ? handleExitSelect : handleEnterSelect}
@@ -93,14 +102,36 @@ const FridgeScreen = ({
         </div>
       </div>
 
-      {foods.length === 0 ? (
+      {hasLibrary && (
+        <div className="relative mb-4">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+            aria-hidden
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={handleQueryChange}
+            aria-label={en.fridge.filterAria}
+            placeholder={en.fridge.filterPlaceholder}
+            className="w-full rounded-xl border border-border bg-card pl-9 pr-4 py-3.5 text-base outline-none focus:border-foreground/40 min-h-11"
+          />
+        </div>
+      )}
+
+      {!hasLibrary ? (
         <div className="bg-card rounded-2xl border border-dashed border-border p-10 text-center">
           <FridgeIcon size={24} className="text-muted-foreground/40 mx-auto mb-3" aria-hidden />
           <p className="text-sm text-muted-foreground">{en.fridge.empty}</p>
         </div>
+      ) : visibleFoods.length === 0 ? (
+        <div className={`bg-card rounded-2xl border border-border p-10 text-center ${selecting ? "mb-20" : ""}`}>
+          <p className="text-sm text-muted-foreground">{en.fridge.noMatches}</p>
+        </div>
       ) : (
         <div className={`bg-card rounded-2xl border border-border px-4 ${selecting ? "mb-20" : ""}`}>
-          {foods.map((f) => (
+          {visibleFoods.map((f) => (
             <FoodRow
               key={f.id}
               food={f}
@@ -116,7 +147,7 @@ const FridgeScreen = ({
         </div>
       )}
 
-      {selecting && foods.length > 0 && (
+      {selecting && hasLibrary && (
         <div className="fixed bottom-24 inset-x-0 z-20 px-4 max-w-md mx-auto">
           <button
             type="button"

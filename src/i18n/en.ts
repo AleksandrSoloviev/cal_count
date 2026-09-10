@@ -85,6 +85,9 @@ const en = {
     select: "Select",
     doneSelect: "Done",
     logSelected: (n: number) => `Log ${n}`,
+    filterPlaceholder: "Filter by name",
+    filterAria: "Filter foods by name",
+    noMatches: "No foods match that name.",
   },
   history: {
     eyebrow: "Log",
