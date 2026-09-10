@@ -15,8 +15,13 @@ import {
 } from "../domain/validation";
 import en from "../i18n/en";
 import GoalInput from "../components/GoalInput";
+import UploadDumpButton from "../components/UploadDumpButton";
+import type { StorageDocument } from "../storage/schema";
 
-type Props = { onComplete: (g: Goals) => void };
+type Props = {
+  onComplete: (g: Goals) => void;
+  onRestore: (doc: StorageDocument) => void;
+};
 
 type Step = "path" | "know" | "sex" | "body" | "goal" | "review";
 
@@ -43,7 +48,7 @@ const optionBtnClass = (selected: boolean) =>
       : "border-border bg-card text-foreground hover:border-foreground/30"
   }`;
 
-const OnboardingScreen = ({ onComplete }: Props) => {
+const OnboardingScreen = ({ onComplete, onRestore }: Props) => {
   const [step, setStep] = useState<Step>("path");
   const [sex, setSex] = useState<SurveySex | null>(null);
   const [heightCm, setHeightCm] = useState("");
@@ -263,6 +268,7 @@ const OnboardingScreen = ({ onComplete }: Props) => {
           >
             {en.onboarding.dontKnowCta}
           </button>
+          <UploadDumpButton onRestore={onRestore} />
         </div>
       </>
     );

@@ -43,7 +43,7 @@ const App = () => {
   }, [moveMealModal]);
 
   if (!store.goals) {
-    return <OnboardingScreen onComplete={store.setGoals} />;
+    return <OnboardingScreen onComplete={store.setGoals} onRestore={store.restoreDocument} />;
   }
 
   return (
@@ -113,6 +113,7 @@ const App = () => {
           goals={store.goals}
           onSave={store.setGoals}
           onCancel={store.closeSettings}
+          onRestore={store.restoreDocument}
         />
       )}
 

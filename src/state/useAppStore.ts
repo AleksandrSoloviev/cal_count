@@ -16,7 +16,8 @@ import type {
 } from "../domain/types";
 import { sortFoodsByPopularity } from "../domain/foodPopularity";
 import { applyFoodUpdate, type FoodPatch } from "../domain/updateFood";
-import { loadDocument, saveDocument } from "../storage/localStore";
+import { loadDocument, migrate, saveDocument } from "../storage/localStore";
+import type { StorageDocument } from "../storage/schema";
 
 const newId = (): string =>
   typeof crypto !== "undefined" && crypto.randomUUID
@@ -98,6 +99,26 @@ export const useAppStore = () => {
 
   const openSettings = () => setSettingsOpen(true);
   const closeSettings = () => setSettingsOpen(false);
+
+  const restoreDocument = (doc: StorageDocument) => {
+    const next = migrate(doc);
+    saveDocument(next);
+    setGoalsState(next.goals);
+    setFoods(next.foods);
+    setEntries(next.entries);
+    setModal(null);
+    setEditingEntry(null);
+    setLogQueue([]);
+    setLogQueueActive(false);
+    setHeldDayDetailDate(null);
+    setOpenWeekPeriod(null);
+    setEntryFocus({ kind: "latest" });
+    setFocusSeq((n) => n + 1);
+    setTab("home");
+    setCardMode("day");
+    setHistoryPeriodState("daily");
+    setSettingsOpen(false);
+  };
 
   const openModal = (m: Modal) => {
     if (m.type !== "log-food") setEditingEntry(null);
@@ -284,6 +305,7 @@ export const useAppStore = () => {
     settingsOpen,
     openSettings,
     closeSettings,
+    restoreDocument,
     editingEntry,
     today,
     entryFocus,

@@ -4,17 +4,20 @@ import type { Goals } from "../domain/types";
 import { validateGoals } from "../domain/validation";
 import en from "../i18n/en";
 import GoalInput from "../components/GoalInput";
+import UploadDumpButton from "../components/UploadDumpButton";
 import { dumpFilename, serializeDump } from "../storage/dump";
 import { loadDocument } from "../storage/localStore";
 import { saveDumpToDevice } from "../storage/saveDump";
+import type { StorageDocument } from "../storage/schema";
 
 type Props = {
   goals: Goals;
   onSave: (g: Goals) => void;
   onCancel: () => void;
+  onRestore: (doc: StorageDocument) => void;
 };
 
-const SettingsScreen = ({ goals, onSave, onCancel }: Props) => {
+const SettingsScreen = ({ goals, onSave, onCancel, onRestore }: Props) => {
   const [vals, setVals] = useState({
     calories: String(goals.calories),
     protein: String(goals.protein),
@@ -78,16 +81,19 @@ const SettingsScreen = ({ goals, onSave, onCancel }: Props) => {
             {en.settings.data}
           </h2>
           <p className="text-sm text-muted-foreground mb-4">{en.settings.dumpHint}</p>
-          <button
-            type="button"
-            onClick={handleDownloadDump}
-            disabled={dumpBusy}
-            aria-label={en.settings.dumpAria}
-            className="w-full rounded-xl border border-border py-4 text-sm font-semibold min-h-11 flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <Download size={18} aria-hidden />
-            {en.settings.dump}
-          </button>
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={handleDownloadDump}
+              disabled={dumpBusy}
+              aria-label={en.settings.dumpAria}
+              className="w-full rounded-xl border border-border py-4 text-sm font-semibold min-h-11 flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              <Download size={18} aria-hidden />
+              {en.settings.dump}
+            </button>
+            <UploadDumpButton onRestore={onRestore} disabled={dumpBusy} />
+          </div>
         </section>
 
         <div className="flex gap-3">

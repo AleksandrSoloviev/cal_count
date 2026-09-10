@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { dumpFilename, serializeDump } from "../src/storage/dump";
+import { DEFAULT_FOODS } from "../src/domain/defaults";
+import { dumpFilename, parseDump, serializeDump } from "../src/storage/dump";
 import type { StorageDocument } from "../src/storage/schema";
 
 const sampleDoc = (): StorageDocument => ({
@@ -43,5 +44,50 @@ describe("dump", () => {
     expect(parsed.entries[0]?.foodName).toBe("Egg");
     expect(json.startsWith("{")).toBe(true);
     expect(json).toContain("\n  \"version\":");
+  });
+
+  it("round-trips serialize then parse", () => {
+    const result = parseDump(serializeDump(sampleDoc()));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.doc.goals?.calories).toBe(2000);
+    expect(result.doc.foods[0]?.name).toBe("Egg");
+    expect(result.doc.entries[0]?.qty).toBe(2);
+    expect(result.doc.version).toBe(1);
+  });
+
+  it("accepts a BOM-prefixed dump", () => {
+    const result = parseDump(`\uFEFF${serializeDump(sampleDoc())}`);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.doc.entries).toHaveLength(1);
+  });
+
+  it("rejects invalid JSON", () => {
+    expect(parseDump("{not-json")).toEqual({ ok: false, reason: "invalid-json" });
+  });
+
+  it("rejects JSON that is not a dump document", () => {
+    expect(parseDump("[]")).toEqual({ ok: false, reason: "invalid-shape" });
+    expect(parseDump(JSON.stringify({ foods: [], entries: [] }))).toEqual({
+      ok: false,
+      reason: "invalid-shape",
+    });
+  });
+
+  it("rejects dumps with invalid entries", () => {
+    const bad = sampleDoc();
+    bad.entries = [{ id: "x" } as never];
+    expect(parseDump(JSON.stringify(bad))).toEqual({ ok: false, reason: "invalid-shape" });
+  });
+
+  it("migrates empty foods to defaults on restore", () => {
+    const result = parseDump(
+      JSON.stringify({ version: 1, goals: sampleDoc().goals, foods: [], entries: [] }),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.doc.foods).toHaveLength(DEFAULT_FOODS.length);
+    expect(result.doc.entries).toEqual([]);
   });
 });
