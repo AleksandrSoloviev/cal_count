@@ -113,13 +113,37 @@ const en = {
   stats: {
     eyebrow: "Analytics",
     title: "Statistics",
-    avg: "7-day avg",
-    goal: "Daily goal",
+    periodAria: "Stats period",
+    period7d: "7 days",
+    period30d: "30 days",
+    period90d: "90 days",
+    period12m: "12 months",
+    granularityAria: "Stats grouping",
+    grainDay: "Day",
+    grainWeek: "Week",
+    grainMonth: "Month",
+    nutrientAria: "Nutrient",
+    avgDay: "Daily avg",
+    avgWeek: "Weekly avg",
+    avgMonth: "Monthly avg",
+    goalDay: "Daily goal",
+    goalWeek: "Weekly goal",
+    goalMonth: "Monthly goal",
     emptyTitle: "No data yet.",
     emptyHint: "Stats appear after logging food.",
-    chartTitle: "Last 7 days",
-    overflowHint: (v: string, unit: string) =>
-      `Bars in red exceed the daily goal of ${v} ${unit}`,
+    emptyPeriodTitle: "No data in this period.",
+    emptyPeriodHint: "Nothing logged in this window. Try a longer period.",
+    chartTitle7d: "Last 7 days",
+    chartTitle30d: "Last 30 days",
+    chartTitle90d: "Last 90 days",
+    chartTitle12m: "Last 12 months",
+    overflowHintBucket: (grain: "day" | "week" | "month") =>
+      grain === "day"
+        ? "Bars in red exceed the goal for that day"
+        : grain === "week"
+          ? "Bars in red exceed the goal for that week"
+          : "Bars in red exceed the goal for that month",
+    todayLabel: "Today",
   },
   settings: {
     title: "Settings",

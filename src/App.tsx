@@ -102,7 +102,15 @@ const App = () => {
           />
         )}
         {store.tab === "stats" && (
-          <StatsScreen allEntries={store.entries} goals={store.goals} today={store.today} />
+          <StatsScreen
+            allEntries={store.entries}
+            goals={store.goals}
+            today={store.today}
+            statsPeriod={store.statsPeriod}
+            statsGranularity={store.statsGranularity}
+            onStatsPeriodChange={store.setStatsPeriod}
+            onStatsGranularityChange={store.setStatsGranularity}
+          />
         )}
       </div>
 

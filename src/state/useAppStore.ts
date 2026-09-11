@@ -11,6 +11,8 @@ import type {
   Goals,
   HistoryPeriod,
   Modal,
+  StatsGranularity,
+  StatsPeriod,
   Tab,
   WeekWindow,
 } from "../domain/types";
@@ -39,6 +41,8 @@ export const useAppStore = () => {
   const [cardMode, setCardMode] = useState<CardMode>("day");
   const [historyPeriod, setHistoryPeriodState] = useState<HistoryPeriod>("daily");
   const [openWeekPeriod, setOpenWeekPeriod] = useState<WeekWindow | null>(null);
+  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>("7d");
+  const [statsGranularity, setStatsGranularity] = useState<StatsGranularity>("day");
   const [logQueue, setLogQueue] = useState<Food[]>([]);
   const [logQueueActive, setLogQueueActive] = useState(false);
   const [fridgeResetSeq, setFridgeResetSeq] = useState(0);
@@ -117,6 +121,8 @@ export const useAppStore = () => {
     setTab("home");
     setCardMode("day");
     setHistoryPeriodState("daily");
+    setStatsPeriod("7d");
+    setStatsGranularity("day");
     setSettingsOpen(false);
   };
 
@@ -316,6 +322,10 @@ export const useAppStore = () => {
     setHistoryPeriod,
     openWeekPeriod,
     setOpenWeekPeriod,
+    statsPeriod,
+    setStatsPeriod,
+    statsGranularity,
+    setStatsGranularity,
     logQueue,
     logQueueActive,
     fridgeResetSeq,

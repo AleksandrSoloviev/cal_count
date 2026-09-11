@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  addDays,
+  countInclusiveDays,
   dateOffset,
+  daysInCalendarMonth,
   fmtWeekRange,
   greetingForHour,
+  monthBounds,
   shiftTsToDate,
+  statsLookback,
   todayStr,
   weekBoundsSatFri,
 } from "../src/domain/dates";
@@ -67,5 +72,30 @@ describe("dates", () => {
     expect(d.getMinutes()).toBe(30);
     expect(d.getSeconds()).toBe(15);
     expect(d.getMilliseconds()).toBe(250);
+  });
+
+  it("addDays moves local calendar dates", () => {
+    expect(addDays("2026-09-11", -6)).toBe("2026-09-05");
+    expect(addDays("2026-09-11", -29)).toBe("2026-08-13");
+  });
+
+  it("statsLookback fixtures for 2026-09-11", () => {
+    const today = "2026-09-11";
+    expect(statsLookback("7d", today)).toEqual({ start: "2026-09-05", end: today });
+    expect(statsLookback("30d", today)).toEqual({ start: "2026-08-13", end: today });
+    expect(statsLookback("90d", today)).toEqual({ start: "2026-06-14", end: today });
+    expect(statsLookback("12m", today)).toEqual({ start: "2025-10-01", end: today });
+  });
+
+  it("statsLookback 12m starts on the 1st after a long month", () => {
+    expect(statsLookback("12m", "2026-03-31").start).toBe("2025-04-01");
+  });
+
+  it("daysInCalendarMonth / countInclusiveDays / monthBounds", () => {
+    expect(daysInCalendarMonth("2026-09-11")).toBe(30);
+    expect(daysInCalendarMonth("2026-02-01")).toBe(28);
+    expect(countInclusiveDays("2026-09-05", "2026-09-11")).toBe(7);
+    expect(countInclusiveDays("2026-09-01", "2026-09-11")).toBe(11);
+    expect(monthBounds("2026-09-11")).toEqual({ start: "2026-09-01", end: "2026-09-30" });
   });
 });

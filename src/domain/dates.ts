@@ -1,4 +1,9 @@
-import type { WeekWindow } from "./types";
+import type { StatsPeriod, WeekWindow } from "./types";
+
+export type DateRange = {
+  start: string;
+  end: string;
+};
 
 export const todayStr = (now = new Date()): string => {
   const y = now.getFullYear();
@@ -36,6 +41,41 @@ export const dateOffset = (daysAgo: number, now = new Date()): string => {
   const d = new Date(now);
   d.setDate(d.getDate() - daysAgo);
   return todayStr(d);
+};
+
+export const addDays = (dateStr: string, delta: number): string => {
+  const d = parseLocalNoon(dateStr);
+  d.setDate(d.getDate() + delta);
+  return todayStr(d);
+};
+
+export const daysInCalendarMonth = (dateStr: string): number => {
+  const d = parseLocalNoon(dateStr);
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+};
+
+export const monthBounds = (dateStr: string): DateRange => {
+  const d = parseLocalNoon(dateStr);
+  const start = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+  const last = daysInCalendarMonth(dateStr);
+  const end = `${start.slice(0, 8)}${String(last).padStart(2, "0")}`;
+  return { start, end };
+};
+
+export const countInclusiveDays = (start: string, end: string): number => {
+  const ms = parseLocalNoon(end).getTime() - parseLocalNoon(start).getTime();
+  return Math.round(ms / 86_400_000) + 1;
+};
+
+/** Inclusive lookback ending on `today`. */
+export const statsLookback = (period: StatsPeriod, today: string): DateRange => {
+  if (period === "7d") return { start: addDays(today, -6), end: today };
+  if (period === "30d") return { start: addDays(today, -29), end: today };
+  if (period === "90d") return { start: addDays(today, -89), end: today };
+  const d = parseLocalNoon(today);
+  d.setDate(1);
+  d.setMonth(d.getMonth() - 11);
+  return { start: todayStr(d), end: today };
 };
 
 export const fmtDate = (dateStr: string): string => {

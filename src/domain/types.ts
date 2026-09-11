@@ -66,6 +66,12 @@ export type CardMode = "day" | "week";
 /** Session UI for History Daily / Weekly. Not persisted. Independent of CardMode. */
 export type HistoryPeriod = "daily" | "weekly";
 
+/** Session UI for Stats lookback. Not persisted. Independent of CardMode / HistoryPeriod. */
+export type StatsPeriod = "7d" | "30d" | "90d" | "12m";
+
+/** Session UI for Stats bar grouping. Not persisted. Independent of CardMode / HistoryPeriod. */
+export type StatsGranularity = "day" | "week" | "month";
+
 /** Derived calorie strip on History compare cards. Not persisted. */
 export type CalorieCardStatus = "red" | "yellow" | "green";
 
