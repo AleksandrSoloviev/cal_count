@@ -6,6 +6,7 @@ import {
   daysInCalendarMonth,
   fmtWeekRange,
   greetingForHour,
+  fmtMonthDay,
   monthBounds,
   shiftTsToDate,
   statsLookback,
@@ -89,6 +90,10 @@ describe("dates", () => {
 
   it("statsLookback 12m starts on the 1st after a long month", () => {
     expect(statsLookback("12m", "2026-03-31").start).toBe("2025-04-01");
+  });
+
+  it("fmtMonthDay omits weekday", () => {
+    expect(fmtMonthDay("2026-09-11")).toBe("Sep 11");
   });
 
   it("daysInCalendarMonth / countInclusiveDays / monthBounds", () => {

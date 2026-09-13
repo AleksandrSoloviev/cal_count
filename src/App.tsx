@@ -107,9 +107,7 @@ const App = () => {
             goals={store.goals}
             today={store.today}
             statsPeriod={store.statsPeriod}
-            statsGranularity={store.statsGranularity}
             onStatsPeriodChange={store.setStatsPeriod}
-            onStatsGranularityChange={store.setStatsGranularity}
           />
         )}
       </div>

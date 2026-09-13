@@ -1,21 +1,27 @@
 import { useMemo, useState } from "react";
 import {
+  Area,
   Bar,
   BarChart,
-  Cell,
+  ComposedChart,
+  Line,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 import { TrendingUp } from "lucide-react";
-import { displayVal, NUTRIENT_META, OVERFLOW_COLOR, r1 } from "../domain/nutrition";
+import { displayVal, NUTRIENT_META, OVERFLOW_COLOR } from "../domain/nutrition";
 import {
   buildStatsBuckets,
-  statsBarOverflows,
-  statsFullBucketGoal,
+  statsAverageLogged,
+  statsBarSegments,
+  statsDailyEquivalent,
+  statsTickIndices,
+  statsYDomainMax,
 } from "../domain/stats";
-import type { Entry, Goals, Nutrient, StatsGranularity, StatsPeriod } from "../domain/types";
+import type { Entry, Goals, Nutrient, StatsPeriod } from "../domain/types";
 import en from "../i18n/en";
 
 type Props = {
@@ -23,9 +29,15 @@ type Props = {
   goals: Goals;
   today: string;
   statsPeriod: StatsPeriod;
-  statsGranularity: StatsGranularity;
   onStatsPeriodChange: (period: StatsPeriod) => void;
-  onStatsGranularityChange: (granularity: StatsGranularity) => void;
+};
+
+type PlotRow = {
+  key: string;
+  label: string;
+  value: number;
+  withinGoal: number;
+  overshoot: number;
 };
 
 const PERIODS: { id: StatsPeriod; label: string }[] = [
@@ -35,12 +47,6 @@ const PERIODS: { id: StatsPeriod; label: string }[] = [
   { id: "12m", label: en.stats.period12m },
 ];
 
-const GRAINS: { id: StatsGranularity; label: string }[] = [
-  { id: "day", label: en.stats.grainDay },
-  { id: "week", label: en.stats.grainWeek },
-  { id: "month", label: en.stats.grainMonth },
-];
-
 const CHART_TITLE: Record<StatsPeriod, string> = {
   "7d": en.stats.chartTitle7d,
   "30d": en.stats.chartTitle30d,
@@ -48,38 +54,17 @@ const CHART_TITLE: Record<StatsPeriod, string> = {
   "12m": en.stats.chartTitle12m,
 };
 
-const AVG_CAPTION: Record<StatsGranularity, string> = {
-  day: en.stats.avgDay,
-  week: en.stats.avgWeek,
-  month: en.stats.avgMonth,
-};
+const PLOT_HEIGHT = 240;
+const TICK_FILL = "var(--muted-foreground)";
+const MAX_BAR_SIZE = 8;
 
-const GOAL_CAPTION: Record<StatsGranularity, string> = {
-  day: en.stats.goalDay,
-  week: en.stats.goalWeek,
-  month: en.stats.goalMonth,
-};
-
-const TICK_FILL = "#8A8880";
-
-const StatsScreen = ({
-  allEntries,
-  goals,
-  today,
-  statsPeriod,
-  statsGranularity,
-  onStatsPeriodChange,
-  onStatsGranularityChange,
-}: Props) => {
+const StatsScreen = ({ allEntries, goals, today, statsPeriod, onStatsPeriodChange }: Props) => {
   const [activeNutrient, setActiveNutrient] = useState<keyof Nutrient>("calories");
   const activeMeta = NUTRIENT_META.find((m) => m.key === activeNutrient)!;
+  const dailyGoal = goals[activeNutrient];
 
   const handleSelectPeriod = (period: StatsPeriod) => {
     onStatsPeriodChange(period);
-  };
-
-  const handleSelectGranularity = (granularity: StatsGranularity) => {
-    onStatsGranularityChange(granularity);
   };
 
   const handleSelectNutrient = (key: keyof Nutrient) => {
@@ -92,36 +77,41 @@ const StatsScreen = ({
         entries: allEntries,
         today,
         period: statsPeriod,
-        granularity: statsGranularity,
       }),
-    [allEntries, today, statsPeriod, statsGranularity],
+    [allEntries, today, statsPeriod],
   );
 
-  const data = useMemo(
+  const data = useMemo<PlotRow[]>(
     () =>
-      buckets.map((bucket) => ({
-        label:
-          statsPeriod === "7d" && statsGranularity === "day" && bucket.key === today
-            ? en.stats.todayLabel
-            : bucket.label,
-        value: r1(bucket.totals[activeNutrient]),
-        intersectionDays: bucket.intersectionDays,
-      })),
-    [buckets, statsPeriod, statsGranularity, today, activeNutrient],
+      buckets.map((bucket) => {
+        const value = statsDailyEquivalent(bucket.totals[activeNutrient], bucket.intersectionDays);
+        const segments = statsBarSegments(value, dailyGoal);
+        return {
+          key: bucket.key,
+          label: statsPeriod === "7d" && bucket.key === today ? en.stats.todayLabel : bucket.label,
+          value,
+          withinGoal: segments.withinGoal,
+          overshoot: segments.overshoot,
+        };
+      }),
+    [buckets, statsPeriod, today, activeNutrient, dailyGoal],
   );
 
-  const avg = useMemo(() => {
-    if (data.length === 0) return 0;
-    return r1(data.reduce((sum, row) => sum + row.value, 0) / data.length);
-  }, [data]);
-
-  const goal = statsFullBucketGoal(statsGranularity, goals[activeNutrient], today);
+  const avg = useMemo(() => statsAverageLogged(buckets, activeNutrient), [buckets, activeNutrient]);
+  const yMax = useMemo(
+    () => statsYDomainMax(data.map((row) => row.value), dailyGoal),
+    [data, dailyGoal],
+  );
+  const tickLabels = useMemo(
+    () => statsTickIndices(data.length).map((i) => data[i]?.label).filter(Boolean),
+    [data],
+  );
   const neverLogged = allEntries.length === 0;
-  const plotWidth = Math.max(data.length * 40, 280);
+  const isLinePeriod = statsPeriod === "30d";
 
   return (
     <div className="px-4 pt-12 pb-6 max-w-md mx-auto">
-      <div className="mb-8">
+      <div className="mb-6">
         <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-0.5">
           {en.stats.eyebrow}
         </p>
@@ -131,7 +121,7 @@ const StatsScreen = ({
       <div
         role="radiogroup"
         aria-label={en.stats.periodAria}
-        className="grid grid-cols-4 gap-1.5 mb-3 bg-muted p-1.5 rounded-xl"
+        className="grid grid-cols-4 gap-1.5 mb-2 bg-muted p-1.5 rounded-xl"
       >
         {PERIODS.map((period) => (
           <button
@@ -149,63 +139,25 @@ const StatsScreen = ({
         ))}
       </div>
 
-      <div
-        role="radiogroup"
-        aria-label={en.stats.granularityAria}
-        className="flex rounded-xl bg-muted p-1 gap-1 mb-6"
-      >
-        {GRAINS.map((grain) => (
-          <button
-            key={grain.id}
-            type="button"
-            role="radio"
-            aria-checked={statsGranularity === grain.id}
-            onClick={() => handleSelectGranularity(grain.id)}
-            className={`flex-1 min-h-11 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
-              statsGranularity === grain.id
-                ? "bg-card text-foreground shadow-sm"
-                : "text-muted-foreground"
-            }`}
-          >
-            {grain.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-4 gap-1.5 mb-6 bg-muted p-1.5 rounded-xl" role="tablist" aria-label={en.stats.nutrientAria}>
-        {NUTRIENT_META.map((m) => (
-          <button
-            key={m.key}
-            type="button"
-            role="tab"
-            aria-selected={activeNutrient === m.key}
-            onClick={() => handleSelectNutrient(m.key)}
-            className={`rounded-lg py-2 text-xs font-semibold min-h-11 ${
-              activeNutrient === m.key ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">
-            {AVG_CAPTION[statsGranularity]}
-          </p>
-          <p className="font-mono text-2xl font-semibold" style={{ color: activeMeta.color }}>
-            {displayVal(avg, activeMeta.unit)}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">{activeMeta.unit}</p>
-        </div>
-        <div className="bg-card rounded-2xl border border-border p-4">
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">
-            {GOAL_CAPTION[statsGranularity]}
-          </p>
-          <p className="font-mono text-2xl font-semibold">{displayVal(goal, activeMeta.unit)}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{activeMeta.unit}</p>
-        </div>
+      <div className="flex gap-1 mb-4" role="tablist" aria-label={en.stats.nutrientAria}>
+        {NUTRIENT_META.map((m) => {
+          const selected = activeNutrient === m.key;
+          return (
+            <button
+              key={m.key}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              onClick={() => handleSelectNutrient(m.key)}
+              className={`flex-1 min-h-11 rounded-lg text-xs font-semibold ${
+                selected ? "text-foreground" : "text-muted-foreground"
+              }`}
+              style={selected ? { color: m.color, boxShadow: `inset 0 -2px 0 ${m.color}` } : undefined}
+            >
+              {m.label}
+            </button>
+          );
+        })}
       </div>
 
       {data.length === 0 ? (
@@ -220,25 +172,34 @@ const StatsScreen = ({
         </div>
       ) : (
         <div className="bg-card rounded-2xl border border-border p-4">
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-4">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-3">
             {CHART_TITLE[statsPeriod]}
           </p>
-          <div className="overflow-x-auto">
-            <div className="h-[180px]" style={{ width: plotWidth, minWidth: "100%" }}>
-              <ResponsiveContainer width="100%" height={180}>
-                <BarChart data={data} barSize={28} margin={{ top: 4, right: 0, left: -20, bottom: 0 }}>
+          <div className="w-full" style={{ height: PLOT_HEIGHT }}>
+            <ResponsiveContainer width="100%" height={PLOT_HEIGHT}>
+              {isLinePeriod ? (
+                <ComposedChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <XAxis
                     dataKey="label"
+                    ticks={tickLabels}
+                    interval={0}
                     tick={{ fontSize: 11, fill: TICK_FILL }}
                     axisLine={false}
                     tickLine={false}
                   />
-                  <YAxis tick={{ fontSize: 10, fill: TICK_FILL }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    domain={[0, yMax]}
+                    width={36}
+                    tick={{ fontSize: 10, fill: TICK_FILL }}
+                    tickFormatter={(v: number) => String(Math.round(v))}
+                    axisLine={false}
+                    tickLine={false}
+                  />
                   <Tooltip
-                    cursor={{ fill: "rgba(20,20,19,0.04)" }}
+                    cursor={{ stroke: "rgba(20,20,19,0.12)" }}
                     contentStyle={{
-                      background: "#fff",
-                      border: "1px solid rgba(20,20,19,0.1)",
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
                       borderRadius: 10,
                       fontSize: 12,
                     }}
@@ -247,27 +208,98 @@ const StatsScreen = ({
                       activeMeta.label,
                     ]}
                   />
-                  <Bar dataKey="value" radius={[5, 5, 0, 0]}>
-                    {data.map((row, i) => (
-                      <Cell
-                        key={`${row.label}-${i}`}
-                        fill={
-                          statsBarOverflows(row.value, goals[activeNutrient], row.intersectionDays)
-                            ? OVERFLOW_COLOR
-                            : activeMeta.color
-                        }
-                      />
-                    ))}
-                  </Bar>
+                  <ReferenceLine y={dailyGoal} stroke={TICK_FILL} strokeDasharray="4 4" />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    fill={activeMeta.color}
+                    fillOpacity={0.2}
+                    stroke="none"
+                    isAnimationActive={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value"
+                    stroke={activeMeta.color}
+                    strokeWidth={2}
+                    isAnimationActive={false}
+                    dot={(props: { cx?: number; cy?: number; index?: number; payload?: PlotRow }) => {
+                      const { cx, cy, payload, index } = props;
+                      if (cx == null || cy == null || !payload) {
+                        return <g key={`dot-empty-${index ?? 0}`} />;
+                      }
+                      const fill = payload.overshoot > 0 ? OVERFLOW_COLOR : activeMeta.color;
+                      return <circle key={`dot-${payload.key}`} cx={cx} cy={cy} r={3} fill={fill} />;
+                    }}
+                    activeDot={false}
+                  />
+                </ComposedChart>
+              ) : (
+                <BarChart data={data} maxBarSize={MAX_BAR_SIZE} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                  <XAxis
+                    dataKey="label"
+                    ticks={tickLabels}
+                    interval={0}
+                    tick={{ fontSize: 11, fill: TICK_FILL }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[0, yMax]}
+                    width={36}
+                    tick={{ fontSize: 10, fill: TICK_FILL }}
+                    tickFormatter={(v: number) => String(Math.round(v))}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "rgba(20,20,19,0.04)" }}
+                    contentStyle={{
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 10,
+                      fontSize: 12,
+                    }}
+                    formatter={(_v: number, _name: string, item: { payload?: PlotRow }) => [
+                      `${displayVal(item.payload?.value ?? 0, activeMeta.unit)} ${activeMeta.unit}`,
+                      activeMeta.label,
+                    ]}
+                  />
+                  <ReferenceLine y={dailyGoal} stroke={TICK_FILL} strokeDasharray="4 4" />
+                  <Bar dataKey="withinGoal" stackId="intake" fill={activeMeta.color} isAnimationActive={false} />
+                  <Bar
+                    dataKey="overshoot"
+                    stackId="intake"
+                    fill={OVERFLOW_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    isAnimationActive={false}
+                  />
                 </BarChart>
-              </ResponsiveContainer>
-            </div>
+              )}
+            </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2 text-center">
-            {en.stats.overflowHintBucket(statsGranularity)}
-          </p>
+          <p className="text-[10px] text-muted-foreground mt-2 text-center">{en.stats.overflowHint}</p>
         </div>
       )}
+
+      <div className="grid grid-cols-2 gap-3 mt-6">
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">
+            {en.stats.avgDay}
+          </p>
+          <p className="font-mono text-2xl font-semibold" style={{ color: activeMeta.color }}>
+            {displayVal(avg, activeMeta.unit)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">{activeMeta.unit}</p>
+        </div>
+        <div className="bg-card rounded-2xl border border-border p-4">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground mb-1">
+            {en.stats.goalDay}
+          </p>
+          <p className="font-mono text-2xl font-semibold">{displayVal(dailyGoal, activeMeta.unit)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{activeMeta.unit}</p>
+        </div>
+      </div>
     </div>
   );
 };

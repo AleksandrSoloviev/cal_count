@@ -1,7 +1,7 @@
 {
-  "name": "012-stats-periods-granularity",
-  "path": "specs/012-stats-periods-granularity/",
+  "name": "013-stats-calendar-chart",
+  "path": "specs/013-stats-calendar-chart/",
   "mode": "full",
-  "description": "на странице статистики хочу иметь возможность видеть не только за последние 7 дней, но и за другие периоды. Также хочу иметь возможность смотреть статистику разбитую не только по дням, но и по неделям и месяцам",
-  "created": "2026-09-11T10:18:43Z"
+  "description": "Redraw SCREEN-stats chart with calendar axis, daily-equivalent points, goal line, period-locked series type, and no pan. Independent Day/Week/Month grouping from 012 is cancelled.",
+  "created": "2026-09-11T13:10:23Z"
 }

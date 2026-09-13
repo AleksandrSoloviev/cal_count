@@ -118,17 +118,9 @@ const en = {
     period30d: "30 days",
     period90d: "90 days",
     period12m: "12 months",
-    granularityAria: "Stats grouping",
-    grainDay: "Day",
-    grainWeek: "Week",
-    grainMonth: "Month",
     nutrientAria: "Nutrient",
     avgDay: "Daily avg",
-    avgWeek: "Weekly avg",
-    avgMonth: "Monthly avg",
     goalDay: "Daily goal",
-    goalWeek: "Weekly goal",
-    goalMonth: "Monthly goal",
     emptyTitle: "No data yet.",
     emptyHint: "Stats appear after logging food.",
     emptyPeriodTitle: "No data in this period.",
@@ -137,12 +129,7 @@ const en = {
     chartTitle30d: "Last 30 days",
     chartTitle90d: "Last 90 days",
     chartTitle12m: "Last 12 months",
-    overflowHintBucket: (grain: "day" | "week" | "month") =>
-      grain === "day"
-        ? "Bars in red exceed the goal for that day"
-        : grain === "week"
-          ? "Bars in red exceed the goal for that week"
-          : "Bars in red exceed the goal for that month",
+    overflowHint: "Red marks intake above the daily goal",
     todayLabel: "Today",
   },
   settings: {

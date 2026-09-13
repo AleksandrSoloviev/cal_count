@@ -83,6 +83,12 @@ export const fmtDate = (dateStr: string): string => {
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 };
 
+/** Month + day, no weekday — e.g. `Sep 11`. */
+export const fmtMonthDay = (dateStr: string): string => {
+  const d = new Date(`${dateStr}T12:00:00`);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
 export const fmtTime = (ts: number): string =>
   new Date(ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 

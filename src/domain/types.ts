@@ -69,7 +69,7 @@ export type HistoryPeriod = "daily" | "weekly";
 /** Session UI for Stats lookback. Not persisted. Independent of CardMode / HistoryPeriod. */
 export type StatsPeriod = "7d" | "30d" | "90d" | "12m";
 
-/** Session UI for Stats bar grouping. Not persisted. Independent of CardMode / HistoryPeriod. */
+/** Derived grain for a Stats period (`grainForPeriod`). Not session UI and not persisted. */
 export type StatsGranularity = "day" | "week" | "month";
 
 /** Derived calorie strip on History compare cards. Not persisted. */

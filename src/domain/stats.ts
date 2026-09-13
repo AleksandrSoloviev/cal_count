@@ -1,14 +1,13 @@
 import {
+  addDays,
   countInclusiveDays,
-  fmtDate,
-  fmtWeekRange,
+  fmtMonthDay,
   monthBounds,
   statsLookback,
-  daysInCalendarMonth,
   weekBoundsSatFri,
   type DateRange,
 } from "./dates";
-import { r1, sumNutrition } from "./nutrition";
+import { r1, sumNutrition, ZERO_NUTRIENT } from "./nutrition";
 import type { Entry, Nutrient, StatsGranularity, StatsPeriod } from "./types";
 import { filterEntriesByDateRange } from "./week";
 
@@ -21,6 +20,7 @@ export type StatsBucket = {
   clipEnd: string;
   intersectionDays: number;
   totals: Nutrient;
+  hasEntries: boolean;
 };
 
 export const intersectRange = (a: DateRange, b: DateRange): DateRange | null => {
@@ -30,9 +30,29 @@ export const intersectRange = (a: DateRange, b: DateRange): DateRange | null => 
   return { start, end };
 };
 
-const canonicalRange = (date: string, granularity: StatsGranularity): { key: string; range: DateRange } => {
-  if (granularity === "day") return { key: date, range: { start: date, end: date } };
-  if (granularity === "week") {
+export const grainForPeriod = (period: StatsPeriod): StatsGranularity => {
+  if (period === "7d" || period === "30d") return "day";
+  if (period === "90d") return "week";
+  return "month";
+};
+
+const shortWeekday = (date: string): string =>
+  new Date(`${date}T12:00:00`).toLocaleDateString("en-US", { weekday: "short" });
+
+const shortMonth = (date: string): string =>
+  new Date(`${date}T12:00:00`).toLocaleDateString("en-US", { month: "short" });
+
+const nextMonthStart = (monthStart: string): string => {
+  const d = new Date(`${monthStart}T12:00:00`);
+  d.setMonth(d.getMonth() + 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}-01`;
+};
+
+const canonicalRange = (date: string, grain: StatsGranularity): { key: string; range: DateRange } => {
+  if (grain === "day") return { key: date, range: { start: date, end: date } };
+  if (grain === "week") {
     const week = weekBoundsSatFri(date);
     return { key: week.start, range: week };
   }
@@ -40,57 +60,70 @@ const canonicalRange = (date: string, granularity: StatsGranularity): { key: str
   return { key: date.slice(0, 7), range };
 };
 
-const bucketLabel = (
-  granularity: StatsGranularity,
-  period: StatsPeriod,
-  range: DateRange,
-  lookback: DateRange,
-): string => {
-  if (granularity === "day") {
-    return period === "7d"
-      ? new Date(`${range.start}T12:00:00`).toLocaleDateString("en-US", { weekday: "short" })
-      : fmtDate(range.start);
+const bucketLabel = (grain: StatsGranularity, period: StatsPeriod, range: DateRange, lookback: DateRange): string => {
+  if (grain === "day") {
+    return period === "7d" ? shortWeekday(range.start) : fmtMonthDay(range.start);
   }
-  if (granularity === "week") return fmtWeekRange(range.start, range.end);
-  const month = new Date(`${range.start}T12:00:00`).toLocaleDateString("en-US", { month: "short" });
+  if (grain === "week") return fmtMonthDay(range.start);
+  const month = shortMonth(range.start);
   const spansYears = lookback.start.slice(0, 4) !== lookback.end.slice(0, 4);
   if (!spansYears) return month;
   return `${month} ${range.start.slice(0, 4)}`;
+};
+
+const walkSlotStarts = (lookback: DateRange, grain: StatsGranularity): string[] => {
+  if (grain === "day") {
+    const dates: string[] = [];
+    for (let date = lookback.start; date <= lookback.end; date = addDays(date, 1)) {
+      dates.push(date);
+    }
+    return dates;
+  }
+  if (grain === "week") {
+    const starts: string[] = [];
+    let start = weekBoundsSatFri(lookback.start).start;
+    while (start <= lookback.end) {
+      starts.push(start);
+      start = addDays(start, 7);
+    }
+    return starts;
+  }
+  const starts: string[] = [];
+  let start = monthBounds(lookback.start).start;
+  while (start <= lookback.end) {
+    starts.push(start);
+    start = nextMonthStart(start);
+  }
+  return starts;
 };
 
 export const buildStatsBuckets = (args: {
   entries: Entry[];
   today: string;
   period: StatsPeriod;
-  granularity: StatsGranularity;
 }): StatsBucket[] => {
   const lookback = statsLookback(args.period, args.today);
   const inWindow = filterEntriesByDateRange(args.entries, lookback.start, lookback.end);
-  const groups = new Map<string, { range: DateRange; items: Entry[] }>();
+  if (inWindow.length === 0) return [];
 
-  for (const entry of inWindow) {
-    const { key, range } = canonicalRange(entry.date, args.granularity);
-    const existing = groups.get(key);
-    if (existing) {
-      existing.items.push(entry);
-    } else {
-      groups.set(key, { range, items: [entry] });
-    }
-  }
-
+  const grain = grainForPeriod(args.period);
   const buckets: StatsBucket[] = [];
-  for (const [key, group] of groups) {
-    const clip = intersectRange(group.range, lookback);
+
+  for (const slotDate of walkSlotStarts(lookback, grain)) {
+    const { key, range } = canonicalRange(slotDate, grain);
+    const clip = intersectRange(range, lookback);
     if (!clip) continue;
+    const items = inWindow.filter((entry) => entry.date >= clip.start && entry.date <= clip.end);
     buckets.push({
       key,
-      label: bucketLabel(args.granularity, args.period, group.range, lookback),
-      rangeStart: group.range.start,
-      rangeEnd: group.range.end,
+      label: bucketLabel(grain, args.period, range, lookback),
+      rangeStart: range.start,
+      rangeEnd: range.end,
       clipStart: clip.start,
       clipEnd: clip.end,
       intersectionDays: countInclusiveDays(clip.start, clip.end),
-      totals: sumNutrition(group.items),
+      totals: items.length === 0 ? { ...ZERO_NUTRIENT } : sumNutrition(items),
+      hasEntries: items.length > 0,
     });
   }
 
@@ -98,18 +131,45 @@ export const buildStatsBuckets = (args: {
   return buckets;
 };
 
-export const statsFullBucketGoal = (
-  granularity: StatsGranularity,
-  dailyGoal: number,
-  today: string,
-): number => {
-  if (granularity === "day") return dailyGoal;
-  if (granularity === "week") return dailyGoal * 7;
-  return dailyGoal * daysInCalendarMonth(today);
+export const statsDailyEquivalent = (total: number, intersectionDays: number): number => {
+  if (intersectionDays < 1) return 0;
+  return r1(total / intersectionDays);
 };
 
-export const statsBarOverflows = (
-  value: number,
+export const statsAverageLogged = (buckets: StatsBucket[], nutrientKey: keyof Nutrient): number => {
+  const logged = buckets.filter((bucket) => bucket.hasEntries);
+  if (logged.length === 0) return 0;
+  const sum = logged.reduce(
+    (acc, bucket) => acc + statsDailyEquivalent(bucket.totals[nutrientKey], bucket.intersectionDays),
+    0,
+  );
+  return r1(sum / logged.length);
+};
+
+export const statsPointOverflows = (dailyEquivalent: number, dailyGoal: number): boolean =>
+  dailyEquivalent > dailyGoal;
+
+export const statsYDomainMax = (values: number[], dailyGoal: number): number => {
+  const peak = values.length === 0 ? 0 : Math.max(...values);
+  return Math.round(Math.max(peak, dailyGoal, 0) * 1.1);
+};
+
+export const statsTickIndices = (length: number): number[] => {
+  if (length <= 0) return [];
+  if (length <= 7) return Array.from({ length }, (_, i) => i);
+  const count = length <= 14 ? 5 : 6;
+  const indices: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const idx = Math.round((i * (length - 1)) / (count - 1));
+    if (indices[indices.length - 1] !== idx) indices.push(idx);
+  }
+  return indices;
+};
+
+export const statsBarSegments = (
+  dailyEquivalent: number,
   dailyGoal: number,
-  intersectionDays: number,
-): boolean => r1(value) > dailyGoal * intersectionDays;
+): { withinGoal: number; overshoot: number } => ({
+  withinGoal: Math.min(dailyEquivalent, dailyGoal),
+  overshoot: Math.max(0, dailyEquivalent - dailyGoal),
+});
