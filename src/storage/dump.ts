@@ -53,7 +53,8 @@ const isEntry = (v: unknown): v is Entry => {
     typeof o.foodId === "string" &&
     typeof o.foodName === "string" &&
     isMethod(o.method) &&
-    isNutrient(o.nutrition)
+    isNutrient(o.nutrition) &&
+    (!("oneOff" in o) || o.oneOff === true)
   );
 };
 

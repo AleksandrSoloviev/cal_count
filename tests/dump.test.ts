@@ -81,6 +81,48 @@ describe("dump", () => {
     expect(parseDump(JSON.stringify(bad))).toEqual({ ok: false, reason: "invalid-shape" });
   });
 
+  it("accepts a one-off entry and keeps the flag", () => {
+    const doc = sampleDoc();
+    doc.entries = [
+      {
+        id: "off-1",
+        date: "2026-09-22",
+        ts: 1,
+        foodId: "unused",
+        foodName: "Noma",
+        method: "pieces",
+        oneOff: true,
+        nutrition: { calories: 800, protein: 40, fat: 30, carbs: 50 },
+      },
+    ];
+    const result = parseDump(JSON.stringify(doc));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.doc.entries[0]?.oneOff).toBe(true);
+    expect(result.doc.entries[0]?.foodName).toBe("Noma");
+  });
+
+  it("rejects a one-off flag that is not true", () => {
+    const doc = sampleDoc();
+    const falseFlag = { ...doc.entries[0], oneOff: false };
+    const stringFlag = { ...doc.entries[0], oneOff: "yes" };
+    expect(parseDump(JSON.stringify({ ...doc, entries: [falseFlag] }))).toEqual({
+      ok: false,
+      reason: "invalid-shape",
+    });
+    expect(parseDump(JSON.stringify({ ...doc, entries: [stringFlag] }))).toEqual({
+      ok: false,
+      reason: "invalid-shape",
+    });
+  });
+
+  it("still parses an entry with no oneOff field", () => {
+    const result = parseDump(JSON.stringify(sampleDoc()));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.doc.entries[0]?.oneOff).toBeUndefined();
+  });
+
   it("migrates empty foods to defaults on restore", () => {
     const result = parseDump(
       JSON.stringify({ version: 1, goals: sampleDoc().goals, foods: [], entries: [] }),

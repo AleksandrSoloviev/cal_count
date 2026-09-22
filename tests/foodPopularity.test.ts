@@ -49,6 +49,12 @@ describe("countFoodUsage", () => {
     const map = countFoodUsage([makeEntry("x", "1")]);
     expect(map.get("x")).toBe(1);
   });
+
+  it("does not count a one-off that shares a library foodId", () => {
+    const oneOff: Entry = { ...makeEntry("a", "one"), oneOff: true, qty: undefined };
+    const map = countFoodUsage([makeEntry("a", "lib"), oneOff]);
+    expect(map.get("a")).toBe(1);
+  });
 });
 
 describe("compareFoodsByPopularity / sortFoodsByPopularity", () => {

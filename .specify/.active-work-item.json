@@ -1,7 +1,7 @@
 {
-  "name": "013-stats-calendar-chart",
-  "path": "specs/013-stats-calendar-chart/",
+  "name": "014-one-off-meal",
+  "path": "specs/014-one-off-meal/",
   "mode": "full",
-  "description": "Redraw SCREEN-stats chart with calendar axis, daily-equivalent points, goal line, period-locked series type, and no pan. Independent Day/Week/Month grouping from 012 is cancelled.",
-  "created": "2026-09-11T13:10:23Z"
+  "description": "Add a one-off meal that is not in the fridge: name it (for example a restaurant) and enter calories and macros by hand, without saving it to the fridge.",
+  "created": "2026-09-22T20:09:55Z"
 }

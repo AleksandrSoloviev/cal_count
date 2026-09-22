@@ -3,6 +3,7 @@ import BottomNav from "./components/BottomNav";
 import AddFoodSheet from "./components/sheets/AddFoodSheet";
 import DayDetailSheet from "./components/sheets/DayDetailSheet";
 import LogFoodSheet from "./components/sheets/LogFoodSheet";
+import LogOneOffSheet from "./components/sheets/LogOneOffSheet";
 import MoveMealSheet from "./components/sheets/MoveMealSheet";
 import FridgeScreen from "./screens/FridgeScreen";
 import HistoryScreen from "./screens/HistoryScreen";
@@ -61,6 +62,7 @@ const App = () => {
             cardMode={store.cardMode}
             onCardModeChange={store.setCardMode}
             onAddFood={() => store.setTab("fridge")}
+            onLogOneOff={store.openLogOneOff}
             onEditEntry={store.startEditEntry}
             onDeleteEntry={store.deleteEntry}
             onMoveMeal={(meal) =>
@@ -123,6 +125,14 @@ const App = () => {
         />
       )}
 
+      {store.modal?.type === "log-one-off" && (
+        <LogOneOffSheet
+          key={store.editingEntry?.id ?? "create"}
+          prefill={store.editingEntry?.oneOff === true ? store.editingEntry : null}
+          onConfirm={store.logOrUpdateOneOff}
+          onClose={store.closeModal}
+        />
+      )}
       {store.modal?.type === "log-food" && (
         <LogFoodSheet
           key={`${store.modal.food.id}-${store.logQueue.length}-${store.logQueueActive}`}
