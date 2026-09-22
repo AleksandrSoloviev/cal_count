@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
+import {
+  applyOneOffEdit,
+  buildOneOffEntry,
+  isOneOffEntry,
+  validateOneOffDraft,
+  type OneOffDraft,
+} from "../domain/oneOffEntry";
 import { groupEntriesIntoMeals, moveEntriesToDate } from "../domain/meals";
 import { calcNutrition } from "../domain/nutrition";
 import type {
@@ -260,7 +267,53 @@ export const useAppStore = () => {
     persist({ entries: next });
   };
 
+  const openLogOneOff = () => {
+    setEditingEntry(null);
+    setModal({ type: "log-one-off" });
+  };
+
+  const logOrUpdateOneOff = (draft: OneOffDraft) => {
+    const validated = validateOneOffDraft(draft);
+    if (!validated.ok) return;
+    if (editingEntry && !isOneOffEntry(editingEntry)) return;
+
+    let entry: Entry;
+    if (editingEntry) {
+      entry = applyOneOffEdit(editingEntry, validated.name, validated.nutrition);
+    } else {
+      const id = newId();
+      let foodId = newId();
+      if (foodId === id) foodId = newId();
+      entry = buildOneOffEntry({
+        id,
+        foodId,
+        date: todayStr(),
+        ts: Date.now(),
+        name: validated.name,
+        nutrition: validated.nutrition,
+      });
+    }
+
+    const nextEntries = editingEntry
+      ? entries.map((e) => (e.id === editingEntry.id ? entry : e))
+      : [...entries, entry];
+    setEntries(nextEntries);
+    persist({ entries: nextEntries });
+    setEntryFocus({ kind: "entry", id: entry.id });
+    setFocusSeq((n) => n + 1);
+    setModal(null);
+    setEditingEntry(null);
+    setLogQueue([]);
+    setLogQueueActive(false);
+    setTab("home");
+  };
+
   const startEditEntry = (entry: Entry) => {
+    if (isOneOffEntry(entry)) {
+      setEditingEntry(entry);
+      setModal({ type: "log-one-off" });
+      return;
+    }
     const food = foods.find((f) => f.id === entry.foodId) ?? foodFromEntry(entry);
     openLogFood(food, entry);
   };
@@ -327,6 +380,8 @@ export const useAppStore = () => {
     heldDayDetailDate,
     startLogQueue,
     logOrUpdateEntry,
+    openLogOneOff,
+    logOrUpdateOneOff,
     moveMeal,
     deleteEntry,
     startEditEntry,

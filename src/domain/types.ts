@@ -43,6 +43,8 @@ export interface Entry {
   qty?: number;
   compQty?: Record<string, number>;
   nutrition: Nutrient;
+  /** Absolute totals typed by hand. Absent on fridge-based entries, including orphans. */
+  oneOff?: true;
 }
 
 /** Derived cluster for one calendar day. Not persisted. */
@@ -103,4 +105,5 @@ export type Modal =
   | { type: "add-food"; prefill?: Food }
   | { type: "edit-food"; food: Food }
   | { type: "day-detail"; date: string }
-  | { type: "move-meal"; entryIds: string[]; sourceDate: string };
+  | { type: "move-meal"; entryIds: string[]; sourceDate: string }
+  | { type: "log-one-off" };

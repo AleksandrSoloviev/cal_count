@@ -67,6 +67,29 @@ describe("groupEntriesIntoMeals", () => {
     expect(meals[0].nutrition.calories).toBe(30);
   });
 
+  it("groups a one-off by timestamp the same way as a library entry", () => {
+    const oneOff = (id: string, ts: number): Entry => ({
+      ...makeEntry(id, ts),
+      method: "pieces",
+      qty: undefined,
+      oneOff: true,
+      foodName: "Noma",
+    });
+    const together = groupEntriesIntoMeals([
+      makeEntry("a", T0),
+      oneOff("b", T0 + MEAL_GAP_MS),
+    ]);
+    expect(together).toHaveLength(1);
+    expect(together[0].entries.map((e) => e.id)).toEqual(["a", "b"]);
+
+    const split = groupEntriesIntoMeals([
+      makeEntry("a", T0),
+      oneOff("b", T0 + MEAL_GAP_MS + 1),
+    ]);
+    expect(split).toHaveLength(2);
+    expect(split[1].entries[0].foodName).toBe("Noma");
+  });
+
   it("orders same-timestamp entries by id", () => {
     const meals = groupEntriesIntoMeals([makeEntry("b", T0), makeEntry("a", T0)]);
     expect(meals).toHaveLength(1);
@@ -118,6 +141,27 @@ describe("moveEntriesToDate", () => {
     const result = moveEntriesToDate(entries, ["a", "b"], "2026-08-13");
     expect(result.changed).toBe(false);
     expect(result.entries).toBe(entries);
+  });
+
+  it("keeps oneOff, name, and nutrition when the date changes", () => {
+    const oneOff: Entry = {
+      ...makeEntry("off", T0),
+      method: "pieces",
+      qty: undefined,
+      oneOff: true,
+      foodName: "Noma",
+      foodId: "unused",
+      nutrition: { calories: 800, protein: 40, fat: 30, carbs: 50 },
+    };
+    const result = moveEntriesToDate([oneOff], ["off"], "2026-08-10");
+    expect(result.changed).toBe(true);
+    const moved = result.entries[0];
+    expect(moved.date).toBe("2026-08-10");
+    expect(moved.oneOff).toBe(true);
+    expect(moved.foodName).toBe("Noma");
+    expect(moved.foodId).toBe("unused");
+    expect(moved.nutrition).toEqual({ calories: 800, protein: 40, fat: 30, carbs: 50 });
+    expect(moved.qty).toBeUndefined();
   });
 
   it("leaves unmatched entries untouched and preserves ids and nutrition", () => {

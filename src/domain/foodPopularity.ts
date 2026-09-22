@@ -3,6 +3,7 @@ import type { Entry, Food } from "./types";
 export const countFoodUsage = (entries: Entry[]): Map<string, number> => {
   const usage = new Map<string, number>();
   for (const entry of entries) {
+    if (entry.oneOff === true) continue;
     usage.set(entry.foodId, (usage.get(entry.foodId) ?? 0) + 1);
   }
   return usage;

@@ -20,6 +20,7 @@ type Props = {
   cardMode: CardMode;
   onCardModeChange: (mode: CardMode) => void;
   onAddFood: () => void;
+  onLogOneOff: () => void;
   onEditEntry: (e: Entry) => void;
   onDeleteEntry: (id: string) => void;
   onMoveMeal: (meal: Meal) => void;
@@ -37,6 +38,7 @@ const TodayScreen = ({
   cardMode,
   onCardModeChange,
   onAddFood,
+  onLogOneOff,
   onEditEntry,
   onDeleteEntry,
   onMoveMeal,
@@ -107,6 +109,10 @@ const TodayScreen = ({
 
   const handleAddFood = () => {
     onAddFood();
+  };
+
+  const handleLogOneOff = () => {
+    onLogOneOff();
   };
 
   const handleOpenSettings = () => {
@@ -192,18 +198,27 @@ const TodayScreen = ({
         ))}
       </div>
 
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
           {en.today.section}
         </h2>
-        <button
-          type="button"
-          onClick={handleAddFood}
-          className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-lg active:scale-95 min-h-11"
-        >
-          <Plus size={12} aria-hidden />
-          {en.today.addFood}
-        </button>
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
+          <button
+            type="button"
+            onClick={handleLogOneOff}
+            className="text-xs font-semibold border border-border bg-card text-foreground px-3 py-1.5 rounded-lg active:scale-95 min-h-11"
+          >
+            {en.today.logMeal}
+          </button>
+          <button
+            type="button"
+            onClick={handleAddFood}
+            className="flex items-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground px-3 py-1.5 rounded-lg active:scale-95 min-h-11"
+          >
+            <Plus size={12} aria-hidden />
+            {en.today.addFood}
+          </button>
+        </div>
       </div>
 
       {entries.length === 0 ? (
