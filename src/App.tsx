@@ -14,6 +14,7 @@ import StatsScreen from "./screens/StatsScreen";
 import TodayScreen from "./screens/TodayScreen";
 import type { Entry } from "./domain/types";
 import { useAppStore } from "./state/useAppStore";
+import { useLockBodyScroll } from "./state/useLockBodyScroll";
 
 const App = () => {
   const store = useAppStore();
@@ -46,6 +47,8 @@ const App = () => {
       active instanceof HTMLElement && active.id ? active.id : `day-entry-save-${entry.id}`;
     store.openSaveOneOffToFridge(entry);
   };
+
+  useLockBodyScroll(Boolean(store.modal) || store.settingsOpen);
 
   useEffect(() => {
     if (moveMealModal || saveOneOffModal) return;

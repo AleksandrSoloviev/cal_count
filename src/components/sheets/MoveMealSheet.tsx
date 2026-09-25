@@ -43,7 +43,7 @@ const MoveMealSheet = ({ sourceDate, onConfirm, onClose }: Props) => {
         aria-label={en.moveMeal.closeAria}
         onClick={handleClose}
       />
-      <div className="relative bg-background rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto pb-safe">
+      <div data-sheet-scroll="" className="relative bg-background rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain pb-safe">
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 rounded-full bg-border" />
         </div>

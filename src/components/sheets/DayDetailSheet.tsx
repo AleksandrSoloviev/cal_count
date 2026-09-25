@@ -55,7 +55,7 @@ const DayDetailSheet = ({
       {...(inert ? ({ inert: "" } as { inert: string }) : {})}
     >
       <button type="button" className="absolute inset-0 bg-black/30 backdrop-blur-sm" aria-label={en.dayDetail.closeAria} onClick={handleClose} />
-      <div className="relative bg-background rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div data-sheet-scroll="" className="relative bg-background rounded-t-3xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 rounded-full bg-border" />
         </div>

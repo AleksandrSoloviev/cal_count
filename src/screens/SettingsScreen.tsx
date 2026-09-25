@@ -50,7 +50,7 @@ const SettingsScreen = ({ goals, onSave, onCancel, onRestore }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
+    <div data-sheet-scroll="" className="fixed inset-0 z-50 bg-background overflow-y-auto overscroll-contain">
       <div className="max-w-md mx-auto px-4 pt-12 pb-10">
         <div className="flex items-center gap-2 mb-8">
           <button
