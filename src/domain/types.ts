@@ -106,4 +106,5 @@ export type Modal =
   | { type: "edit-food"; food: Food }
   | { type: "day-detail"; date: string }
   | { type: "move-meal"; entryIds: string[]; sourceDate: string }
-  | { type: "log-one-off" };
+  | { type: "log-one-off" }
+  | { type: "save-one-off-food"; entryId: string };

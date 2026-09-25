@@ -5,12 +5,14 @@ import DayDetailSheet from "./components/sheets/DayDetailSheet";
 import LogFoodSheet from "./components/sheets/LogFoodSheet";
 import LogOneOffSheet from "./components/sheets/LogOneOffSheet";
 import MoveMealSheet from "./components/sheets/MoveMealSheet";
+import SaveOneOffToFridgeSheet from "./components/sheets/SaveOneOffToFridgeSheet";
 import FridgeScreen from "./screens/FridgeScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import OnboardingScreen from "./screens/OnboardingScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import StatsScreen from "./screens/StatsScreen";
 import TodayScreen from "./screens/TodayScreen";
+import type { Entry } from "./domain/types";
 import { useAppStore } from "./state/useAppStore";
 
 const App = () => {
@@ -31,17 +33,28 @@ const App = () => {
 
   const editFoodModal = store.modal?.type === "edit-food" ? store.modal : null;
   const moveMealModal = store.modal?.type === "move-meal" ? store.modal : null;
+  const saveOneOffModal = store.modal?.type === "save-one-off-food" ? store.modal : null;
+  const saveOneOffEntry = saveOneOffModal
+    ? store.entries.find((entry) => entry.id === saveOneOffModal.entryId)
+    : undefined;
   const dayDetailDate =
     store.modal?.type === "day-detail" ? store.modal.date : store.heldDayDetailDate;
 
+  const handleSaveOneOff = (entry: Entry) => {
+    const active = document.activeElement;
+    moveReturnFocusIdRef.current =
+      active instanceof HTMLElement && active.id ? active.id : `day-entry-save-${entry.id}`;
+    store.openSaveOneOffToFridge(entry);
+  };
+
   useEffect(() => {
-    if (moveMealModal) return;
+    if (moveMealModal || saveOneOffModal) return;
     const id = moveReturnFocusIdRef.current;
     if (!id) return;
     moveReturnFocusIdRef.current = null;
     const node = document.getElementById(id);
     if (node instanceof HTMLElement) node.focus();
-  }, [moveMealModal]);
+  }, [moveMealModal, saveOneOffModal]);
 
   if (!store.goals) {
     return <OnboardingScreen onComplete={store.setGoals} onRestore={store.restoreDocument} />;
@@ -168,13 +181,22 @@ const App = () => {
             .sort((a, b) => a.ts - b.ts)}
           foods={store.foods}
           goals={store.goals}
-          inert={Boolean(moveMealModal)}
+          inert={Boolean(moveMealModal || saveOneOffModal)}
+          onSaveOneOff={handleSaveOneOff}
           onMove={(meal) =>
             handleOpenMoveMeal(
               meal.entries.map((e) => e.id),
               dayDetailDate,
             )
           }
+          onClose={store.closeModal}
+        />
+      )}
+      {saveOneOffModal && saveOneOffEntry && (
+        <SaveOneOffToFridgeSheet
+          key={saveOneOffModal.entryId}
+          entry={saveOneOffEntry}
+          onConfirm={store.saveOneOffToFridge}
           onClose={store.closeModal}
         />
       )}

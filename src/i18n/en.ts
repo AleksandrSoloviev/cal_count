@@ -193,6 +193,12 @@ const en = {
   dayDetail: {
     empty: "Nothing logged this day.",
     closeAria: "Close",
+    saveToFridgeAria: "Save to fridge",
+  },
+  saveToFridge: {
+    title: "Save to fridge",
+    confirm: "Save food",
+    hint: "Saved as one piece. This day's log stays as it is.",
   },
   nutrient: {
     calories: "Calories",

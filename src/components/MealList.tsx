@@ -1,3 +1,4 @@
+import { isOneOffEntry } from "../domain/oneOffEntry";
 import type { Entry, Food, Meal } from "../domain/types";
 import EntryRow from "./EntryRow";
 import MealAccordion from "./MealAccordion";
@@ -11,6 +12,7 @@ type Props = {
   onEdit?: (entry: Entry) => void;
   onDelete?: (id: string) => void;
   onMove?: (meal: Meal) => void;
+  onSaveOneOff?: (entry: Entry) => void;
 };
 
 const MealList = ({
@@ -22,6 +24,7 @@ const MealList = ({
   onEdit,
   onDelete,
   onMove,
+  onSaveOneOff,
 }: Props) => {
   const readOnly = !onEdit && !onDelete;
 
@@ -51,6 +54,9 @@ const MealList = ({
                 readOnly={readOnly}
                 onEdit={onEdit ? () => onEdit(entry) : undefined}
                 onDelete={onDelete ? () => onDelete(entry.id) : undefined}
+                onSaveToFridge={
+                  onSaveOneOff && isOneOffEntry(entry) ? () => onSaveOneOff(entry) : undefined
+                }
               />
             ))}
           </MealAccordion>

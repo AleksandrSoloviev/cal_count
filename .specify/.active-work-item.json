@@ -1,7 +1,7 @@
 {
-  "name": "014-one-off-meal",
-  "path": "specs/014-one-off-meal/",
+  "name": "015-history-one-off-to-fridge",
+  "path": "specs/015-history-one-off-to-fridge/",
   "mode": "full",
-  "description": "Add a one-off meal that is not in the fridge: name it (for example a restaurant) and enter calories and macros by hand, without saving it to the fridge.",
-  "created": "2026-09-22T20:09:55Z"
+  "description": "Add a one-off meal from History into the fridge, adjusting calories and macros before save.",
+  "created": "2026-09-25T12:20:42Z"
 }

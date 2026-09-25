@@ -1,4 +1,4 @@
-import type { Entry, Nutrient } from "./types";
+import type { Entry, Food, Nutrient } from "./types";
 
 export type OneOffFieldError = "name" | "calories" | "protein" | "fat" | "carbs";
 
@@ -64,5 +64,44 @@ export const applyOneOffEdit = (entry: Entry, name: string, nutrition: Nutrient)
     ...entry,
     foodName: name,
     nutrition: { ...nutrition },
+  };
+};
+
+export const buildPieceFoodFromOneOff = (input: {
+  id: string;
+  name: string;
+  nutrition: Nutrient;
+}): Food => ({
+  id: input.id,
+  name: input.name,
+  isDefault: false,
+  method: "pieces",
+  perUnit: { ...input.nutrition },
+});
+
+export type AppendPieceFoodResult =
+  | { ok: true; foods: Food[] }
+  | { ok: false; reason: "not-one-off" }
+  | { ok: false; reason: "invalid"; errors: OneOffFieldError[] };
+
+export const appendPieceFoodFromOneOff = (
+  foods: Food[],
+  entry: Entry,
+  draft: OneOffDraft,
+  id: string,
+): AppendPieceFoodResult => {
+  if (!isOneOffEntry(entry)) return { ok: false, reason: "not-one-off" };
+  const validated = validateOneOffDraft(draft);
+  if (!validated.ok) return { ok: false, reason: "invalid", errors: validated.errors };
+  return {
+    ok: true,
+    foods: [
+      ...foods,
+      buildPieceFoodFromOneOff({
+        id,
+        name: validated.name,
+        nutrition: validated.nutrition,
+      }),
+    ],
   };
 };

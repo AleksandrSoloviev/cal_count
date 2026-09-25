@@ -15,10 +15,20 @@ type Props = {
   goals: Goals;
   onClose: () => void;
   onMove?: (meal: Meal) => void;
+  onSaveOneOff?: (entry: Entry) => void;
   inert?: boolean;
 };
 
-const DayDetailSheet = ({ date, entries, foods, goals, onClose, onMove, inert = false }: Props) => {
+const DayDetailSheet = ({
+  date,
+  entries,
+  foods,
+  goals,
+  onClose,
+  onMove,
+  onSaveOneOff,
+  inert = false,
+}: Props) => {
   const totals = sumNutrition(entries);
   const meals = useMemo(() => groupEntriesIntoMeals(entries), [entries]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(() => {
@@ -85,6 +95,7 @@ const DayDetailSheet = ({ date, entries, foods, goals, onClose, onMove, inert = 
               idPrefix="day-meal"
               onToggle={handleToggle}
               onMove={onMove}
+              onSaveOneOff={onSaveOneOff}
             />
           )}
         </div>

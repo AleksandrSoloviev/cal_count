@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Refrigerator, Trash2 } from "lucide-react";
 import { fmtTime } from "../domain/dates";
 import type { Entry, Food } from "../domain/types";
 import en from "../i18n/en";
@@ -9,6 +9,7 @@ type Props = {
   foods: Food[];
   onEdit?: () => void;
   onDelete?: () => void;
+  onSaveToFridge?: () => void;
   readOnly?: boolean;
 };
 
@@ -32,7 +33,7 @@ const describeQty = (e: Entry, foods: Food[]): string => {
   return "";
 };
 
-const EntryRow = ({ entry, foods, onEdit, onDelete, readOnly = false }: Props) => {
+const EntryRow = ({ entry, foods, onEdit, onDelete, onSaveToFridge, readOnly = false }: Props) => {
   const [confirming, setConfirming] = useState(false);
 
   return (
@@ -52,7 +53,19 @@ const EntryRow = ({ entry, foods, onEdit, onDelete, readOnly = false }: Props) =
           </span>
         </div>
       </div>
-      {readOnly ? null : confirming ? (
+      {readOnly ? (
+        onSaveToFridge ? (
+          <button
+            id={`day-entry-save-${entry.id}`}
+            type="button"
+            onClick={onSaveToFridge}
+            aria-label={en.dayDetail.saveToFridgeAria}
+            className="p-2.5 rounded-lg text-muted-foreground min-h-11 min-w-11 flex-shrink-0"
+          >
+            <Refrigerator size={14} aria-hidden />
+          </button>
+        ) : null
+      ) : confirming ? (
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             type="button"

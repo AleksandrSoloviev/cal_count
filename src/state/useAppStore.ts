@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { msUntilNextLocalMidnight, todayStr } from "../domain/dates";
 import { foodFromEntry } from "../domain/foodFromEntry";
 import {
+  appendPieceFoodFromOneOff,
   applyOneOffEdit,
   buildOneOffEntry,
   isOneOffEntry,
@@ -151,7 +152,7 @@ export const useAppStore = () => {
   };
 
   const closeModal = () => {
-    if (modal?.type === "move-meal" && heldDayDetailDate) {
+    if ((modal?.type === "move-meal" || modal?.type === "save-one-off-food") && heldDayDetailDate) {
       setModal({ type: "day-detail", date: heldDayDetailDate });
       setHeldDayDetailDate(null);
       setEditingEntry(null);
@@ -272,6 +273,28 @@ export const useAppStore = () => {
     setModal({ type: "log-one-off" });
   };
 
+  const openSaveOneOffToFridge = (entry: Entry) => {
+    if (!isOneOffEntry(entry)) return;
+    if (modal?.type === "day-detail") {
+      setHeldDayDetailDate(modal.date);
+    }
+    setEditingEntry(null);
+    setModal({ type: "save-one-off-food", entryId: entry.id });
+  };
+
+  const saveOneOffToFridge = (draft: OneOffDraft) => {
+    if (modal?.type !== "save-one-off-food") return;
+    const entry = entries.find((item) => item.id === modal.entryId);
+    if (!entry) return;
+    let id = newId();
+    while (id === entry.id || id === entry.foodId) id = newId();
+    const result = appendPieceFoodFromOneOff(foods, entry, draft, id);
+    if (!result.ok) return;
+    setFoods(result.foods);
+    persist({ foods: result.foods });
+    closeModal();
+  };
+
   const logOrUpdateOneOff = (draft: OneOffDraft) => {
     const validated = validateOneOffDraft(draft);
     if (!validated.ok) return;
@@ -382,6 +405,8 @@ export const useAppStore = () => {
     logOrUpdateEntry,
     openLogOneOff,
     logOrUpdateOneOff,
+    openSaveOneOffToFridge,
+    saveOneOffToFridge,
     moveMeal,
     deleteEntry,
     startEditEntry,
